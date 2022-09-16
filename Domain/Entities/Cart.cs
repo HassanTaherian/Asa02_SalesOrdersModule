@@ -1,9 +1,7 @@
 ﻿namespace Domain.Entities
 {
-    public class Cart
+    public class Cart : BaseEntity
     {
-        public long CartId { get; set; }
-
         public long UserId { get; set; }
 
         public double TotalPrice { get; set; }
