@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{6D2DC2AE-3D04-42D7-908C-A53B4EA3889A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presistence", "Presistance\Presistence.csproj", "{AD6AD42A-FB30-4346-8BB6-67140191C7BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "Presistance\Persistence.csproj", "{AD6AD42A-FB30-4346-8BB6-67140191C7BF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentations", "Presentations\Presentations.csproj", "{11A16DDD-32D3-4DF3-B93A-32DBA3E2EFC2}"
 EndProject
