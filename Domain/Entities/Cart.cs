@@ -4,8 +4,6 @@
     {
         public long UserId { get; set; }
 
-        public double TotalPrice { get; set; }
-
         public virtual ICollection<CartItem> Items { get; set; }
     }
 }

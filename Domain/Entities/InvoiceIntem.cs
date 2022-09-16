@@ -10,7 +10,7 @@
 
         public bool IsReturn { get; set; }
 
-        public DateTime ReturnDateTime { get; set; }
+        public DateTime? ReturnDateTime { get; set; }
 
         public Invoice Invoice { get; set; }
     }
