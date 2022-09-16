@@ -1,9 +1,7 @@
 ﻿namespace Domain.Entities
 {
-    public class WishList
+    public class WishList:BaseEntity
     {
-        public int Id { get; set; }
-
         public long UserId { get; set; }
 
         public virtual ICollection<WishListItem>? WishListItems { get; set; }
