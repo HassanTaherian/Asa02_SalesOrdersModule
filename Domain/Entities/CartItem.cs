@@ -4,6 +4,6 @@
     {
         public long ProductId { get; set; }
 
-        public Cart Cart { get; set; }
+        public virtual Cart Cart { get; set; }
     }
 }

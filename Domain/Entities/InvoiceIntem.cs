@@ -12,6 +12,6 @@
 
         public DateTime? ReturnDateTime { get; set; }
 
-        public Invoice Invoice { get; set; }
+        public virtual Invoice Invoice { get; set; }
     }
 }

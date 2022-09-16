@@ -4,6 +4,6 @@
     {
         public long ProductId { get; set; }
 
-        public WishList WishList { get; set; }
+        public virtual WishList WishList { get; set; }
     }
 }
