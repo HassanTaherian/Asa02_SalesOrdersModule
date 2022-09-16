@@ -11,7 +11,8 @@ namespace Persistence.Repositories
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("");
+            optionsBuilder.UseSqlServer
+                ("Data Source=.;Initial Catalog=Asa;Integrated Security=True");
             base.OnConfiguring(optionsBuilder);
         }
 

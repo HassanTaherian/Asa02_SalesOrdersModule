@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Configurations
 {
-    public class WishListConfig : IEntityTypeConfiguration<WishList>
+    public class WishListItemConfig : IEntityTypeConfiguration<WishListItem>
     {
-        public void Configure(EntityTypeBuilder<WishList> builder)
+        public void Configure(EntityTypeBuilder<WishListItem> builder)
         {
             throw new NotImplementedException();
         }
