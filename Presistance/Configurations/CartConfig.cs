@@ -8,6 +8,10 @@ namespace Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Cart> builder)
         {
+            builder.HasKey(x => x.Id);
+            builder.HasIndex(x => x.UserId);
+            builder.Property(x => x.UserId).IsRequired();
+            builder.Ignore(x => x.TotalPrice);
         }
     }
 }

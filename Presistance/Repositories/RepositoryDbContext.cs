@@ -13,13 +13,13 @@ namespace Persistence.Repositories
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new InvoiceConfig());
-            // modelBuilder.ApplyConfiguration(new InvoiceItemConfig());
-            //
-            // modelBuilder.ApplyConfiguration(new CartConfig());
-            // modelBuilder.ApplyConfiguration(new CartItemConfig());
-            //
-            // modelBuilder.ApplyConfiguration(new WishListConfig());
-            // modelBuilder.ApplyConfiguration(new WishListItemConfig());
+            modelBuilder.ApplyConfiguration(new InvoiceItemConfig());
+
+            modelBuilder.ApplyConfiguration(new CartConfig());
+            modelBuilder.ApplyConfiguration(new CartItemConfig());
+
+            modelBuilder.ApplyConfiguration(new WishListConfig());
+            modelBuilder.ApplyConfiguration(new WishListItemConfig());
         }
 
         public virtual DbSet<Cart> Carts { get; set; }

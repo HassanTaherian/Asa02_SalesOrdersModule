@@ -4,6 +4,8 @@
     {
         public long ProductId { get; set; }
 
+        public double ProductPrice { get; set; }
+
         public virtual WishList WishList { get; set; }
     }
 }

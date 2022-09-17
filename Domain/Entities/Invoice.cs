@@ -2,7 +2,7 @@
 
 namespace Domain.Entities
 {
-    public class Invoice:BaseEntity
+    public class Invoice : BaseEntity
     {
         public long UserId { get; set; }
 
@@ -20,7 +20,6 @@ namespace Domain.Entities
 
         public Address Address { get; set; }
 
-        public virtual ICollection<InvoiceItem> Items { get; set; }
-
+        public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
     }
 }

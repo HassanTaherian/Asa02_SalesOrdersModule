@@ -8,6 +8,9 @@ namespace Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<WishList> builder)
         {
+            builder.HasKey(x => x.Id);
+            builder.HasIndex(x => x.UserId);
+            builder.Property(x => x.UserId).IsRequired();
         }
     }
 }
