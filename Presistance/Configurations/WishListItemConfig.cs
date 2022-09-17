@@ -8,7 +8,6 @@ namespace Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<WishListItem> builder)
         {
-            throw new NotImplementedException();
         }
     }
 }

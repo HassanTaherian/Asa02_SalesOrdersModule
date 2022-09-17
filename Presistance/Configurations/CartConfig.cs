@@ -8,7 +8,6 @@ namespace Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Cart> builder)
         {
-            throw new NotImplementedException();
         }
     }
 }
