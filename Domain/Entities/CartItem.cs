@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities
 {
-    public abstract class CartItem : BaseEntity
+    public class CartItem : BaseEntity
     {
         public long ProductId { get; set; }
 

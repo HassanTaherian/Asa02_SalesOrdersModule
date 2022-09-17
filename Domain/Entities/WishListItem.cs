@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities
 {
-    public abstract class WishListItem : BaseEntity
+    public class WishListItem : BaseEntity
     {
         public long ProductId { get; set; }
 
