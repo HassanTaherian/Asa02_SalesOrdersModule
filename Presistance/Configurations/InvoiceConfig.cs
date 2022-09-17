@@ -20,6 +20,33 @@ namespace Persistence.Configurations
                     navigationBuilder.Property(address => address.PostalCode)
                         .HasColumnName("PostalCode");
                 });
+
+            builder.Property(invoice => invoice.DiscountCode).HasMaxLength(6);
+
+            // builder.Property(invoice => invoice.Address.City).HasMaxLength(25);
+
+            builder.OwnsOne(invoice => invoice.Address)
+                .Property(address => address.City)
+                .HasMaxLength(25);
+            
+            // builder.Property(invoice => invoice.Address.Province).HasMaxLength(25);
+
+            builder.OwnsOne(invoice => invoice.Address)
+                .Property(address => address.Province)
+                .HasMaxLength(25);
+
+
+            // builder.Property(invoice => invoice.Address.MainStreet).HasMaxLength(30);
+
+            builder.OwnsOne(invoice => invoice.Address)
+                .Property(address => address.MainStreet)
+                .HasMaxLength(30);
+
+            // builder.Property(invoice => invoice.Address.PostalCode).HasMaxLength(10);
+
+            builder.OwnsOne(invoice => invoice.Address)
+                .Property(address => address.PostalCode)
+                .HasMaxLength(10);
         }
     }
 }
