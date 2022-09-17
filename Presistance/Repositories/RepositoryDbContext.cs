@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Persistence.Configurations;
 
 namespace Persistence.Repositories
 {
@@ -9,11 +10,16 @@ namespace Persistence.Repositories
         {
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            optionsBuilder.UseSqlServer
-                ("Data Source=.;Initial Catalog=Asa;Integrated Security=True");
-            base.OnConfiguring(optionsBuilder);
+            modelBuilder.ApplyConfiguration(new InvoiceConfig());
+            // modelBuilder.ApplyConfiguration(new InvoiceItemConfig());
+            //
+            // modelBuilder.ApplyConfiguration(new CartConfig());
+            // modelBuilder.ApplyConfiguration(new CartItemConfig());
+            //
+            // modelBuilder.ApplyConfiguration(new WishListConfig());
+            // modelBuilder.ApplyConfiguration(new WishListItemConfig());
         }
 
         public virtual DbSet<Cart> Carts { get; set; }
@@ -22,6 +28,5 @@ namespace Persistence.Repositories
         public virtual DbSet<InvoiceItem> InvoiceItems { get; set; }
         public virtual DbSet<WishList> WishLists { get; set; }
         public virtual DbSet<WishListItem> WishListItems { get; set; }
-        public virtual DbSet<BaseEntity> BaseEntities { get; set; }
     }
 }
