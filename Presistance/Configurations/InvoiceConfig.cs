@@ -8,7 +8,18 @@ namespace Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Invoice> builder)
         {
-            throw new NotImplementedException();
+            builder.OwnsOne(user => user.Address,
+                navigationBuilder =>
+                {
+                    navigationBuilder.Property(address => address.City)
+                        .HasColumnName("City");
+                    navigationBuilder.Property(address => address.Province)
+                        .HasColumnName("Province");
+                    navigationBuilder.Property(address => address.MainStreet)
+                        .HasColumnName("MainStreet");
+                    navigationBuilder.Property(address => address.PostalCode)
+                        .HasColumnName("PostalCode");
+                });
         }
     }
 }
