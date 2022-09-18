@@ -17,6 +17,10 @@ builder.Services.AddDbContext<RepositoryDbContext>(options =>
     }
 );
 
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
