@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="UI\Credits\" />
+    <Folder Include="UI\User\" />
+  </ItemGroup>
+
 </Project>
