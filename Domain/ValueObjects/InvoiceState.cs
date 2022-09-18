@@ -2,7 +2,7 @@
 {
     public enum InvoiceState
     {
-        PreOrderState,
+        CartState,
         OrderState,
         ReturnState
     }

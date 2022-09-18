@@ -2,7 +2,7 @@
 
 namespace Domain.Repositories
 {
-    public interface IInvoiceRepository
+    public interface IInvoiceRepository : IBaseRepository
     {
         IEnumerable<Invoice?> GetInvoices();
         Task<Invoice?> GetInvoiceById(long id);

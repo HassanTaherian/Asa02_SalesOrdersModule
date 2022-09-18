@@ -48,5 +48,10 @@ namespace Persistence.Repositories
 
             _dbContext.InvoiceItems.Remove(invoiceItem);
         }
+
+        public async Task Save()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

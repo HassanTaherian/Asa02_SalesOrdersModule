@@ -1,7 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Persistence.Repositories
 {
@@ -21,7 +20,7 @@ namespace Persistence.Repositories
 
         public async Task<Invoice?> GetInvoiceById(long id)
         {
-            return await _dbContext.Invoices.FirstOrDefaultAsync(invoice => invoice != null && invoice.Id == id);
+            return await _dbContext.Invoices.FindAsync(id);
         }
 
         public async Task<Invoice> InsertInvoice(Invoice invoice)
@@ -35,13 +34,25 @@ namespace Persistence.Repositories
             _dbContext.Invoices.Attach(invoice);
             _dbContext.Entry(invoice).State = EntityState.Modified;
 
+
             return invoice;
         }
 
         public async void DeleteInvoice(int id)
         {
             var invoice = await GetInvoiceById(id);
+
+            if (invoice is null)
+            {
+                return;
+            }
+
             _dbContext.Invoices.Remove(invoice);
+        }
+
+        public async Task Save()
+        {
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
