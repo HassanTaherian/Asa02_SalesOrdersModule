@@ -4,10 +4,10 @@ namespace Domain.Repositories
 {
     public interface IInvoiceRepository
     {
-        Task<IEnumerable<Invoice?>> GetInvoices();
-        Task<Invoice?> GetInvoiceById(int id);
-        Task<Invoice?> AddInvoice(Invoice invoice);
-        Task<Invoice?> UpdateInvoice(Invoice invoice);
-        Task DeleteInvoice(int id);
+        IEnumerable<Invoice?> GetInvoices();
+        Task<Invoice?> GetInvoiceById(long id);
+        Task<Invoice> InsertInvoice(Invoice invoice);
+        Invoice UpdateInvoice(Invoice invoice);
+        void DeleteInvoice(int id);
     }
 }

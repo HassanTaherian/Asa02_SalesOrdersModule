@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Persistence.Repositories
 {
@@ -10,55 +11,37 @@ namespace Persistence.Repositories
 
         public InvoiceRepository(RepositoryDbContext dbContext)
         {
-            this._dbContext = dbContext;
+            _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<Invoice?>> GetInvoices()
+        public IEnumerable<Invoice?> GetInvoices()
         {
-            return await _dbContext.Invoices.ToListAsync();
+            return _dbContext.Invoices;
         }
 
-        public async Task<Invoice?> GetInvoiceById(int id)
+        public async Task<Invoice?> GetInvoiceById(long id)
         {
-            return await _dbContext.Invoices.FirstOrDefaultAsync(e => e.Id == id);
+            return await _dbContext.Invoices.FirstOrDefaultAsync(invoice => invoice != null && invoice.Id == id);
         }
 
-        public async Task<Invoice?> AddInvoice(Invoice invoice)
+        public async Task<Invoice> InsertInvoice(Invoice invoice)
         {
-            var result = await _dbContext.Invoices.AddAsync(invoice);
-            await _dbContext.SaveChangesAsync();
-            return result.Entity;
+            await _dbContext.Invoices.AddAsync(invoice);
+            return invoice;
         }
 
-        public async Task<Invoice?> UpdateInvoice(Invoice invoice)
+        public Invoice UpdateInvoice(Invoice invoice)
         {
-            var result = await _dbContext.Invoices.FirstOrDefaultAsync
-                (e => e != null && e.Id == invoice.Id);
-            if (result == null) return null;
+            _dbContext.Invoices.Attach(invoice);
+            _dbContext.Entry(invoice).State = EntityState.Modified;
 
-            result.UserId = invoice.UserId;
-            result.TotalPrice = invoice.TotalPrice;
-            result.Address = invoice.Address;
-            result.NewTotalPrice = invoice.NewTotalPrice;
-            result.InvoiceItems = invoice.InvoiceItems;
-            result.DifferencePrice = invoice.DifferencePrice;
-            result.DiscountCode = invoice.DiscountCode;
-            result.ShoppingDateTime = invoice.ShoppingDateTime;
-            result.State = invoice.State;
-
-            await _dbContext.SaveChangesAsync();
-            return result;
+            return invoice;
         }
 
-        public async Task DeleteInvoice(int id)
+        public async void DeleteInvoice(int id)
         {
-            var result = await _dbContext.Invoices
-                .FirstOrDefaultAsync(e => e.Id == id);
-            if (result != null)
-            {
-                _dbContext.Invoices.Remove(result);
-                await _dbContext.SaveChangesAsync();
-            }
+            var invoice = await GetInvoiceById(id);
+            _dbContext.Invoices.Remove(invoice);
         }
     }
 }

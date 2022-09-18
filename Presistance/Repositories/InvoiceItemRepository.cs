@@ -13,48 +13,40 @@ namespace Persistence.Repositories
             this._dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<InvoiceItem?>> GetInvoiceItems()
+        public IEnumerable<InvoiceItem> GetInvoiceItems()
         {
-            return await _dbContext.InvoiceItems.ToListAsync();
+            return _dbContext.InvoiceItems;
         }
 
-        public async Task<InvoiceItem?> GetInvoiceItemById(int id)
+        public async Task<InvoiceItem?> GetInvoiceItemById(long id)
         {
-            return await _dbContext.InvoiceItems.FirstOrDefaultAsync(e => e.Id == id);
-        }
-
-        public async Task<InvoiceItem?> AddInvoiceItem(InvoiceItem invoiceItem)
-        {
-            var result = await _dbContext.InvoiceItems.AddAsync(invoiceItem);
-            await _dbContext.SaveChangesAsync();
-            return result.Entity;
-        }
-
-        public async Task<InvoiceItem?> UpdateInvoiceItem(InvoiceItem invoiceItem)
-        {
-            var result = await _dbContext.InvoiceItems.FirstOrDefaultAsync
-                (e => e.Id == invoiceItem.Id);
-            if (result == null) return null;
-
-            result.ProductId = invoiceItem.ProductId;
-            result.Price = invoiceItem.Price;
-            result.IsReturn = invoiceItem.IsReturn;
-            result.Quantity = invoiceItem.Quantity;
-            result.ReturnDateTime = invoiceItem.ReturnDateTime;
-
-            await _dbContext.SaveChangesAsync();
+            var result = await _dbContext.InvoiceItems.FindAsync(id);
             return result;
         }
 
-        public async Task DeleteInvoiceItem(int id)
+        public async Task<InvoiceItem> AddInvoiceItem(InvoiceItem invoiceItem)
         {
-            var result = await _dbContext.InvoiceItems
-                .FirstOrDefaultAsync(e => e.Id == id);
-            if (result != null)
+            await _dbContext.InvoiceItems.AddAsync(invoiceItem);
+            return invoiceItem;
+        }
+
+        public InvoiceItem UpdateInvoiceItem(InvoiceItem invoiceItem)
+        {
+            _dbContext.InvoiceItems.Attach(invoiceItem);
+            _dbContext.Entry(invoiceItem).State = EntityState.Modified;
+
+            return invoiceItem;
+        }
+
+        public async void DeleteInvoiceItem(long id)
+        {
+            var invoiceItem = await GetInvoiceItemById(id);
+            if (invoiceItem is null)
             {
-                _dbContext.InvoiceItems.Remove(result);
-                await _dbContext.SaveChangesAsync();
+                return;
             }
+
+            _dbContext.InvoiceItems.Remove(invoiceItem);
         }
     }
 }
