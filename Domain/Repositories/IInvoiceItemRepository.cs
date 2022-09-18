@@ -1,6 +1,6 @@
 ﻿using Domain.Entities;
 
-namespace Persistence.Repositories
+namespace Domain.Repositories
 {
     public interface IInvoiceItemRepository
     {
