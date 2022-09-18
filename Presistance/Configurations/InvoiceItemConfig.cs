@@ -8,6 +8,9 @@ namespace Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<InvoiceItem> builder)
         {
+            builder.Property(invoiceItem => invoiceItem.ProductId).IsRequired();
+
+            builder.Property(invoiceItem => invoiceItem.Quantity).IsRequired();
         }
     }
 }
