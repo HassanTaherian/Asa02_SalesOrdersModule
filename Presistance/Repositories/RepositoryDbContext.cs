@@ -24,7 +24,7 @@ namespace Persistence.Repositories
 
         public virtual DbSet<Cart> Carts { get; set; }
         public virtual DbSet<CartItem> CartItems { get; set; }
-        public virtual DbSet<Invoice> Invoices { get; set; }
+        public virtual DbSet<Invoice?> Invoices { get; set; }
         public virtual DbSet<InvoiceItem> InvoiceItems { get; set; }
         public virtual DbSet<WishList> WishLists { get; set; }
         public virtual DbSet<WishListItem> WishListItems { get; set; }

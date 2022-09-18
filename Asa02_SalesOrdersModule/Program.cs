@@ -1,3 +1,4 @@
+using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
 
@@ -16,6 +17,10 @@ builder.Services.AddDbContext<RepositoryDbContext>(options =>
         );
     }
 );
+
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
+
 
 var app = builder.Build();
 
