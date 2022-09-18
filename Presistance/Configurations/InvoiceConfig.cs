@@ -11,7 +11,7 @@ namespace Persistence.Configurations
             builder.Property(invoice => invoice.UserId).IsRequired();
             builder.Property(invoice => invoice.State).IsRequired();
 
-            builder.Property(invoice => invoice.DiscountCode).HasMaxLength(6).IsRequired();
+            builder.Property(invoice => invoice.DiscountCode).HasMaxLength(6);
         }
     }
 }

@@ -11,6 +11,8 @@ namespace Persistence.Configurations
             builder.Property(invoiceItem => invoiceItem.ProductId).IsRequired();
 
             builder.Property(invoiceItem => invoiceItem.Quantity).IsRequired();
+
+            builder.Property(invoiceItem => invoiceItem.Quantity).HasDefaultValue(1);
         }
     }
 }
