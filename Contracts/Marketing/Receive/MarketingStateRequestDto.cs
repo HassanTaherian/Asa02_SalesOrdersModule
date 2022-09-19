@@ -1,4 +1,4 @@
-﻿namespace Contracts.Marketing.Recieve
+﻿namespace Contracts.Marketing.Receive
 {
     public class MarketingStateRequestDto
     {

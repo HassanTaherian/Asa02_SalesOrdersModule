@@ -1,6 +1,6 @@
 ﻿using Domain.ValueObjects;
 
-namespace Contracts.Marketing.Recieve
+namespace Contracts.Marketing.Receive
 {
     public class MarketingStateResponseDto
     {
