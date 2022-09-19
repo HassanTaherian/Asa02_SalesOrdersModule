@@ -2,6 +2,6 @@
 {
     public class ProductRecommendResponseDto
     {
-        public int ProductIds { get; set; }
+        public int ProductId { get; set; }
     }
 }
