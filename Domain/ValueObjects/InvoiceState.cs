@@ -1,6 +1,6 @@
 ﻿namespace Domain.ValueObjects
 {
-    public enum InvoiceState : short
+    public enum InvoiceState
     {
         CartState,
         OrderState,
