@@ -73,6 +73,18 @@ namespace Persistence.Repositories
             return true;
         }
 
+        public async Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId)
+        {
+            var invoice = await GetInvoiceByUserId(userId);
+            if (invoice is null)
+            {
+                // Todo: ItemNotFoundError
+                return null;
+            }
+
+            return invoice.InvoiceItems;
+        }
+
         public async Task Save()
         {
             await _dbContext.SaveChangesAsync();
