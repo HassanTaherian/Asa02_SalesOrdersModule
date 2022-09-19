@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Repositories;
+using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Repositories
@@ -21,6 +22,14 @@ namespace Persistence.Repositories
         public async Task<Invoice?> GetInvoiceById(long id)
         {
             return await _dbContext.Invoices.FindAsync(id);
+        }
+        
+        public async Task<Invoice?> GetInvoiceByUserId(int userId)
+        {
+            var invoice = await _dbContext.Invoices.
+                SingleOrDefaultAsync(invoice => invoice.UserId == userId);
+
+            return invoice;
         }
 
         public async Task<Invoice> InsertInvoice(Invoice invoice)
@@ -48,6 +57,20 @@ namespace Persistence.Repositories
             }
 
             _dbContext.Invoices.Remove(invoice);
+        }
+
+        public async Task<bool> ChangeInvoiceState(int userId, InvoiceState newState)
+        {
+            var invoice = await GetInvoiceByUserId(userId);
+
+            if (invoice is null)
+            {
+                // Todo: Throw NotFound Exception
+                return false;
+            }
+            invoice.State = newState;
+            _dbContext.Entry(invoice).State = EntityState.Modified;
+            return true;
         }
 
         public async Task Save()
