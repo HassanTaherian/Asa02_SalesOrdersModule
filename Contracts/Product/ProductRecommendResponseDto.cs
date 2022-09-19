@@ -2,6 +2,6 @@
 {
     public class ProductRecommendResponseDto
     {
-        public IEnumerable<int> ProductIds { get; set; }
+        public int ProductIds { get; set; }
     }
 }
