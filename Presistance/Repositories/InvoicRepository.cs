@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Contracts.UI.Cart;
+using Domain.Entities;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;

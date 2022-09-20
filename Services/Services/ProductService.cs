@@ -5,59 +5,74 @@ using System.Web;
 using Contracts.UI.Cart;
 using Domain.Entities;
 using Domain.Repositories;
+using Domain.ValueObjects;
 using Services.Abstractions;
 
 namespace Services.Services
 {
-    public class ProductService : IProductService
+    public abstract class ProductService : IProductService
     {
         private readonly IInvoiceRepository _invoiceRepository;
-        private readonly IInvoiceItemRepository _invoiceItemRepository;
-
-        public ProductService(IInvoiceRepository invoiceRepository,
-            IInvoiceItemRepository invoiceItemRepository)
+        public ProductService(IInvoiceRepository invoiceRepository)
         {
             _invoiceRepository = invoiceRepository;
-            _invoiceItemRepository = invoiceItemRepository;
         }
 
-        public async Task Add(AddProductRequestDto addProductRequestDto)
+        public async Task Add(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState)
         {
-            var product = new InvoiceItem
+            var item = new InvoiceItem
             {
                 ProductId = addProductRequestDto.ProductId,
                 Price = addProductRequestDto.UnitPrice,
                 Quantity = addProductRequestDto.Quantity
             };
-            //do these two lines with repo
-            ICollection<InvoiceItem> productItems = new List<InvoiceItem>();
-            productItems.Add(product);
-            //--------
-            var productItem = new Invoice
-            {
-                UserId = addProductRequestDto.UserId,
-                InvoiceItems = productItems
 
-            };
-            await _invoiceRepository.InsertInvoice(productItem);
+            var invoice = await _invoiceRepository.GetCartOfUser(addProductRequestDto.UserId);
+
+            if (invoice == null)
+            {
+                var productItem = new Invoice
+                {
+                    UserId = addProductRequestDto.UserId,
+                    InvoiceItems = new List<InvoiceItem>()
+                    {
+                        item
+                    }
+                };
+                await _invoiceRepository.InsertInvoice(invoice);
+            }
+            else
+            {
+                invoice.InvoiceItems.Add(item);
+            }
+
             await _invoiceRepository.Save();
         }
 
         public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto)
         {
-            //get PreOrder invoice with user id (Ali did it) it should return invoice
-            // var invoice = Search with user id;
-            // invoice.
+            var invoice = await _invoiceRepository.GetCartOfUser(updateQuantityRequestDto.UserId);
+            foreach (var invoiceItem in invoice.InvoiceItems)
+            {
+                if (invoiceItem.ProductId == updateQuantityRequestDto.ProductId)
+                {
+                    invoiceItem.Quantity = updateQuantityRequestDto.Quantity;
+                }
+            }
 
+            _invoiceRepository.Save();
         }
 
-        public async Task DeleteItem()
+        public async Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto)
         {
-            //get PreOrder invoice with user id (Ali did it) it should return invoice
-            // var invoice = Search with user id;
-            // invoice.
+            var invoice = await _invoiceRepository.GetCartOfUser(deleteProductRequestDto.UserId);
+            foreach (var invoiceItem in invoice.InvoiceItems)
+            {
+                if (invoiceItem.ProductId == deleteProductRequestDto.ProductId)
+                {
+                    invoiceItem.IsDeleted = true;
+                }
+            }
         }
-
-
     }
 }

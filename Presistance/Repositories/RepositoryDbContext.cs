@@ -17,6 +17,6 @@ namespace Persistence.Repositories
         }
 
         public virtual DbSet<Invoice> Invoices { get; set; }
-        public virtual DbSet<InvoiceItem> InvoiceItems { get; set; }
+       // public virtual DbSet<InvoiceItem> InvoiceItems { get; set; }
     }
 }
