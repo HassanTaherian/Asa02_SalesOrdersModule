@@ -1,14 +1,15 @@
-﻿using Contracts.UI;
+﻿using System.Collections;
+using Contracts.UI;
 using Domain.Repositories;
 using Services.Abstractions;
 
 namespace Services.Services
 {
-    public sealed class SecondCardService : ISecondCardService
+    public sealed class SecondCartService : ISecondCartService
     {
         public IInvoiceRepository InvoiceRepository { get; }
 
-        public SecondCardService(IInvoiceRepository invoiceRepository)
+        public SecondCartService(IInvoiceRepository invoiceRepository)
         {
             InvoiceRepository = invoiceRepository;
         }
@@ -27,6 +28,17 @@ namespace Services.Services
                         product.IsInSecondCard = true;
                         await InvoiceRepository.SaveChangesAsync(cancellationToken);
                     }
+        }
+
+        public async Task<IEnumerable?> GetSecondCartItems
+        (ProductToSecondCartResponseDto productToSecondCartResponseDto)
+        {
+            var userCart = await InvoiceRepository.GetCartOfUser
+                (productToSecondCartResponseDto.UserId);
+
+            var secondCartItems = userCart?.InvoiceItems
+                    .Where(item => item.IsInSecondCard);
+                return secondCartItems;
         }
     }
 }

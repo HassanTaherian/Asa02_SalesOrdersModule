@@ -1,4 +1,5 @@
-﻿using Contracts.UI;
+﻿using System.Collections;
+using Contracts.UI;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 using Services.Services;
@@ -8,9 +9,9 @@ namespace Asa02_SalesOrdersModule.Controllers
     [ApiController , Route("api/[controller]")]
     public class SecondCartController : ControllerBase
     {
-        private readonly ISecondCardService _secondCardService;
+        private readonly ISecondCartService _secondCardService;
 
-        public SecondCartController(ISecondCardService secondCardService)
+        public SecondCartController(ISecondCartService secondCardService)
         {
             _secondCardService = secondCardService;
         }
@@ -24,5 +25,13 @@ namespace Asa02_SalesOrdersModule.Controllers
                 (productToSecondCardRequestDto, cancellationToken);
             return Ok("Successful");
         }
+
+        [HttpGet]
+        public async Task<IEnumerable?> GetSecondCartItems
+            (ProductToSecondCartResponseDto productToSecondCartResponseDto)
+        {
+           return await _secondCardService.GetSecondCartItems(productToSecondCartResponseDto);
+        }
+
     }
 }
