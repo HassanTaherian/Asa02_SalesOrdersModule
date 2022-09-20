@@ -18,7 +18,7 @@ namespace Services.Services
             _invoiceRepository = invoiceRepository;
         }
 
-        public async Task Add(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState, CancellationToken cancellationToken)
+        public async Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState, CancellationToken cancellationToken)
         {
             var item = new InvoiceItem
             {
@@ -61,6 +61,16 @@ namespace Services.Services
             }
 
             await _invoiceRepository.SaveChangesAsync(cancellationToken);
+        }
+
+        public Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto)

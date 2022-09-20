@@ -5,8 +5,9 @@ namespace Services.Abstractions
 {
     public interface IProductService
     {
-        Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState);
-        Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto);
+        Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState,
+            CancellationToken cancellationToken);
+        Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto, CancellationToken cancellationToken);
         Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto);
 
     }
