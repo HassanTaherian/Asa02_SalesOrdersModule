@@ -7,10 +7,13 @@ namespace Persistence.Repositories
     public  class InvoiceItemRepository : IInvoiceItemRepository
     {
         private readonly RepositoryDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceItemRepository(RepositoryDbContext dbContext)
+        public InvoiceItemRepository(RepositoryDbContext dbContext,
+            IUnitOfWork unitOfWork)
         {
             _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
         }
 
         public IEnumerable<InvoiceItem> GetInvoiceItems()
@@ -49,7 +52,7 @@ namespace Persistence.Repositories
             _dbContext.InvoiceItems.Remove(invoiceItem);
         }
 
-        public async Task Save()
+        public async int Save()
         {
             await _dbContext.SaveChangesAsync();
         }

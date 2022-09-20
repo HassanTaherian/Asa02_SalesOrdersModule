@@ -1,6 +1,5 @@
 ﻿using Contracts.UI;
 using Domain.Repositories;
-using Domain.ValueObjects;
 using Services.Abstractions;
 
 namespace Services.Services
@@ -12,20 +11,20 @@ namespace Services.Services
         public DiscountService(IInvoiceRepository invoiceRepository) =>
             InvoiceRepository = invoiceRepository;
 
-        public async Task 
-            SetDiscountCodeAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto)
+        public async Task
+            SetDiscountCodeAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto,
+                CancellationToken cancellationToken)
         {
+            var invoice = await InvoiceRepository.GetCartOfUser
+                (additionalInvoiceDataDto.UserId);
+            if (invoice != null)
             {
-                var invoice = await InvoiceRepository.GetInvoiceByState
-                    (additionalInvoiceDataDto.UserId , InvoiceState.CartState);
-                if (invoice != null)
-                {
-                    invoice.DiscountCode = additionalInvoiceDataDto.DiscountCode;
+                    invoice.AddressId = additionalInvoiceDataDto.AddressId;
                     InvoiceRepository.UpdateInvoice(invoice);
-                    await InvoiceRepository.Save();
-                }
+                    await InvoiceRepository.SaveChangesAsync(cancellationToken);
             }
         }
+
     }
 }
 

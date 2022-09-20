@@ -4,6 +4,7 @@ namespace Services.Abstractions
 {
     public interface IDiscountService
     {
-        public Task SetDiscountCodeAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto);
+        public Task SetDiscountCodeAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto
+        , CancellationToken cancellationToken);
     }
 }

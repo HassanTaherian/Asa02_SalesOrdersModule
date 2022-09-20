@@ -1,10 +1,11 @@
 ﻿using Domain.Entities;
+using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Configurations;
 
 namespace Persistence.Repositories
 {
-    public class RepositoryDbContext : DbContext
+    public class RepositoryDbContext : DbContext , IUnitOfWork
     {
         public RepositoryDbContext(DbContextOptions options) : base(options)
         {
@@ -18,5 +19,10 @@ namespace Persistence.Repositories
 
         public virtual DbSet<Invoice> Invoices { get; set; }
         public virtual DbSet<InvoiceItem> InvoiceItems { get; set; }
+
+        public override int SaveChanges() => base.SaveChanges();
+
+        public new async Task<int> SaveChangesAsync(CancellationToken cancellationToken) 
+            => await base.SaveChangesAsync(cancellationToken);
     }
 }

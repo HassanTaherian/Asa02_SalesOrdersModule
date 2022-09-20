@@ -3,10 +3,10 @@ using Domain.ValueObjects;
 
 namespace Domain.Repositories
 {
-    public interface IInvoiceRepository : IBaseRepository
+    public interface IInvoiceRepository : IUnitOfWork
     {
         IEnumerable<Invoice?> GetInvoices();
-        IEnumerable<Invoice> GetInvoiceByState(int userId, InvoiceState invoiceState);
+        Task<IEnumerable<Invoice?>> GetInvoiceByState(int userId, InvoiceState invoiceState);
         Task<Invoice?> GetInvoiceById(long id);
         Task<Invoice?> GetCartOfUser(int userId);
         Task<Invoice> InsertInvoice(Invoice invoice);

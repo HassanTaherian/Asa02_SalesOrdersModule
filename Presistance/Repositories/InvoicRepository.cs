@@ -8,10 +8,12 @@ namespace Persistence.Repositories
     public  class InvoiceRepository : IInvoiceRepository
     {
         private readonly RepositoryDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceRepository(RepositoryDbContext dbContext)
+        public InvoiceRepository(RepositoryDbContext dbContext, IUnitOfWork unitOfWork)
         {
             _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
         }
 
         public IEnumerable<Invoice?> GetInvoices() => _dbContext.Invoices;
@@ -28,12 +30,12 @@ namespace Persistence.Repositories
 
         }
 
-        public IEnumerable<Invoice> GetInvoiceByState(int userId, InvoiceState invoiceState)
+        public Task<IEnumerable<Invoice?>> GetInvoiceByState(int userId, InvoiceState invoiceState)
         {
              var userInvoices = _dbContext.Invoices
                  .Where(invoice => invoice.UserId == userId && 
                         invoice.State == invoiceState);
-             return userInvoices;
+             return Task.FromResult<IEnumerable<Invoice?>>(userInvoices);
         }
 
         public async Task<Invoice> InsertInvoice(Invoice invoice)
@@ -62,9 +64,17 @@ namespace Persistence.Repositories
             _dbContext.Invoices.Remove(invoice);
         }
 
-        public async Task Save()
+        public int SaveChanges()
         {
-            await _dbContext.SaveChangesAsync();
+             var returnValue = _unitOfWork.SaveChanges();
+             return returnValue;
         }
+
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+           var returnValue =  await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return returnValue;
+        }
+
     }
 }
