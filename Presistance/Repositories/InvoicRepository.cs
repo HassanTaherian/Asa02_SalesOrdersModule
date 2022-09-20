@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Repositories;
+using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Repositories
@@ -13,14 +14,17 @@ namespace Persistence.Repositories
             _dbContext = dbContext;
         }
 
-        public IEnumerable<Invoice?> GetInvoices()
-        {
-            return _dbContext.Invoices;
-        }
+        public IEnumerable<Invoice?> GetInvoices() => _dbContext.Invoices;
 
         public async Task<Invoice?> GetInvoiceById(long id)
+            => await _dbContext.Invoices.FindAsync(id);
+
+        public async Task<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState)
         {
-            return await _dbContext.Invoices.FindAsync(id);
+            var userInvoice = await _dbContext.Invoices
+                .Where(invoice => invoice.UserId == userId &&
+                                  invoice.State == invoiceState).FirstOrDefaultAsync();
+            return userInvoice;
         }
 
         public async Task<Invoice> InsertInvoice(Invoice invoice)
@@ -33,7 +37,6 @@ namespace Persistence.Repositories
         {
             _dbContext.Invoices.Attach(invoice);
             _dbContext.Entry(invoice).State = EntityState.Modified;
-
 
             return invoice;
         }
