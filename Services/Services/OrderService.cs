@@ -4,16 +4,19 @@ using Domain.Entities;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Services.Abstractions;
+using Services.External;
 
 namespace Services.Services
 {
     public class OrderService : IOrderService
     {
         private readonly IInvoiceRepository _invoiceRepository;
+        private readonly HttpProvider _httpProvider;
 
-        public OrderService(IInvoiceRepository invoiceRepository)
+        public OrderService(IInvoiceRepository invoiceRepository, HttpProvider httpProvider)
         {
             _invoiceRepository = invoiceRepository;
+            _httpProvider = httpProvider;
         }
 
         public async Task<bool> Checkout(CheckoutRequestDto dto)
@@ -23,7 +26,9 @@ namespace Services.Services
             var invoice = await _invoiceRepository.GetItemsOfInvoice(dto.UserId);
             var countingDtos = MapInvoiceConfig(invoice, ProductCountingState.ShopState);
 
-            // Todo: Call ProductAdapter
+            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto>();
+            var json = jsonBridge.SerializeList(countingDtos);
+            await _httpProvider.Post("url", json);
 
             return true;
         }

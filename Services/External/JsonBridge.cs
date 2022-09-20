@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace WebClientTest
+namespace Services.External
 {
     public class JsonBridge<T>
     {
