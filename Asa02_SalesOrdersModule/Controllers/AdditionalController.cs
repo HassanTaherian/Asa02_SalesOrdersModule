@@ -26,14 +26,14 @@ namespace Asa02_SalesOrdersModule.Controllers
             return Ok("Successful");
         }
 
-        [HttpPatch]
-        public async Task<IActionResult> AddAddressCode(
-            [FromBody] AdditionalInvoiceDataDto additionalInvoiceDataDto)
-        {
-            await _addressService.SetAddressIdAsync
-                (additionalInvoiceDataDto , CancellationToken.None);
-            return NoContent();
-        }
+        // [HttpPatch]
+        // public async Task<IActionResult> AddAddressCode(
+        //     [FromBody] AdditionalInvoiceDataDto additionalInvoiceDataDto)
+        // {
+        //     await _addressService.SetAddressIdAsync
+        //         (additionalInvoiceDataDto , CancellationToken.None);
+        //     return NoContent();
+        // }
     }
 
 }

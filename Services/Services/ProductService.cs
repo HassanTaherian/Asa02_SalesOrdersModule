@@ -31,7 +31,7 @@ namespace Services.Services
 
             if (invoice == null)
             {
-                var productItem = new Invoice
+                var newInvoice = new Invoice
                 {
                     UserId = addProductRequestDto.UserId,
                     InvoiceItems = new List<InvoiceItem>()
@@ -39,7 +39,7 @@ namespace Services.Services
                         item
                     }
                 };
-                await _invoiceRepository.InsertInvoice(invoice);
+                await _invoiceRepository.InsertInvoice(newInvoice);
             }
             else
             {
@@ -63,16 +63,6 @@ namespace Services.Services
             await _invoiceRepository.SaveChangesAsync(cancellationToken);
         }
 
-        public Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto)
         {
             var invoice = await _invoiceRepository.GetCartOfUser(deleteProductRequestDto.UserId);
@@ -83,6 +73,9 @@ namespace Services.Services
                     invoiceItem.IsDeleted = true;
                 }
             }
+
+            _invoiceRepository.UpdateInvoice(invoice);
+            await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
         }
     }
 }

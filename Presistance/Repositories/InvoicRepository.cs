@@ -26,7 +26,7 @@ namespace Persistence.Repositories
         {
             var userInvoice = await _dbContext.Invoices
                 .Where(invoice => invoice.UserId == userId && invoice.State
-                    == InvoiceState.CartState).FirstOrDefaultAsync();
+                    == InvoiceState.CartState).Include(invoice => invoice.InvoiceItems).FirstOrDefaultAsync();
             return userInvoice;
         }
 

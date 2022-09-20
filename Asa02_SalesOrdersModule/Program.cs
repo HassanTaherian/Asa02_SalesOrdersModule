@@ -20,10 +20,14 @@ builder.Services.AddDbContext<IUnitOfWork , RepositoryDbContext>(options =>
     }
 );
 
-//builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-//builder.Services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
+// Repositories
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+// Services
 builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+// builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDiscountService, DiscountService>();
+// TODO: Inject HttpClient
 
 
 var app = builder.Build();
