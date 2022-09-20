@@ -9,40 +9,33 @@ namespace Persistence.Repositories
     public class InvoiceRepository : IInvoiceRepository
     {
         private readonly RepositoryDbContext _dbContext;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceRepository(RepositoryDbContext dbContext)
+        public InvoiceRepository(RepositoryDbContext dbContext, IUnitOfWork unitOfWork)
         {
             _dbContext = dbContext;
+            _unitOfWork = unitOfWork;
         }
 
         public IEnumerable<Invoice?> GetInvoices() => _dbContext.Invoices;
-        IEnumerable<Invoice> IInvoiceRepository.GetInvoiceByState(int userId, InvoiceState invoiceState)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<Invoice?> GetInvoiceById(long id)
             => await _dbContext.Invoices.FindAsync(id);
 
-        public Task<Invoice?> GetCartOfUser(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState)
+        public async Task<Invoice?> GetCartOfUser(int userId)
         {
             var userInvoice = await _dbContext.Invoices
-                .Where(invoice => invoice.UserId == userId &&
-                                  invoice.State == invoiceState).FirstOrDefaultAsync();
+                .Where(invoice => invoice.UserId == userId && invoice.State
+                    == InvoiceState.CartState).FirstOrDefaultAsync();
             return userInvoice;
         }
-        
-        public async Task<Invoice?> GetInvoiceByUserId(int userId)
-        {
-            var invoice = await _dbContext.Invoices.
-                SingleOrDefaultAsync(invoice => invoice.UserId == userId);
 
-            return invoice;
+        public IEnumerable<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState)
+        {
+            var userInvoices = _dbContext.Invoices
+                .Where(invoice => invoice.UserId == userId &&
+                                  invoice.State == invoiceState);
+            return userInvoices;
         }
 
         public async Task<Invoice> InsertInvoice(Invoice invoice)
@@ -71,15 +64,22 @@ namespace Persistence.Repositories
             _dbContext.Invoices.Remove(invoice);
         }
 
+        public int SaveChanges()
+        {
+            var returnValue = _unitOfWork.SaveChanges();
+            return returnValue;
+        }
+
         public async Task<bool> ChangeInvoiceState(int userId, InvoiceState newState)
         {
-            var invoice = await GetInvoiceByUserId(userId);
+            var invoice = await GetCartOfUser(userId);
 
             if (invoice is null)
             {
                 // Todo: Throw NotFound Exception
                 return false;
             }
+
             invoice.State = newState;
             _dbContext.Entry(invoice).State = EntityState.Modified;
             return true;
@@ -87,7 +87,7 @@ namespace Persistence.Repositories
 
         public async Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId)
         {
-            var invoice = await GetInvoiceByUserId(userId);
+            var invoice = await GetCartOfUser(userId);
             if (invoice is null)
             {
                 // Todo: ItemNotFoundError
@@ -97,9 +97,11 @@ namespace Persistence.Repositories
             return invoice.InvoiceItems;
         }
 
-        public async Task Save()
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+
         {
-            await _dbContext.SaveChangesAsync();
+            var returnValue = await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return returnValue;
         }
     }
 }

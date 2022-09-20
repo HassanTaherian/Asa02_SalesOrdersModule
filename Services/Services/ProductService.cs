@@ -10,7 +10,7 @@ using Services.Abstractions;
 
 namespace Services.Services
 {
-    public abstract class ProductService : IProductService
+    public class ProductService : IProductService
     {
         private readonly IInvoiceRepository _invoiceRepository;
         public ProductService(IInvoiceRepository invoiceRepository)
@@ -18,7 +18,7 @@ namespace Services.Services
             _invoiceRepository = invoiceRepository;
         }
 
-        public async Task Add(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState)
+        public async Task Add(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState, CancellationToken cancellationToken)
         {
             var item = new InvoiceItem
             {
@@ -46,10 +46,10 @@ namespace Services.Services
                 invoice.InvoiceItems.Add(item);
             }
 
-            await _invoiceRepository.Save();
+            await _invoiceRepository.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto)
+        public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto, CancellationToken cancellationToken)
         {
             var invoice = await _invoiceRepository.GetCartOfUser(updateQuantityRequestDto.UserId);
             foreach (var invoiceItem in invoice.InvoiceItems)
@@ -60,7 +60,7 @@ namespace Services.Services
                 }
             }
 
-            _invoiceRepository.Save();
+            await _invoiceRepository.SaveChangesAsync(cancellationToken);
         }
 
         public async Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto)
