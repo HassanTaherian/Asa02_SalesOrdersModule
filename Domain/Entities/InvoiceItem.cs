@@ -15,5 +15,6 @@
         public bool IsDeleted { get; set; }
 
         public DateTime? ReturnDateTime { get; set; }
+
     }
 }

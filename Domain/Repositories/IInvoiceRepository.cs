@@ -6,10 +6,9 @@ namespace Domain.Repositories
     public interface IInvoiceRepository : IBaseRepository
     {
         IEnumerable<Invoice?> GetInvoices();
+        IEnumerable<Invoice> GetInvoiceByState(int userId, InvoiceState invoiceState);
         Task<Invoice?> GetInvoiceById(long id);
-
-        Task<Invoice?> GetInvoiceByUserId(int userId);
-
+        Task<Invoice?> GetCartOfUser(int userId);
         Task<Invoice> InsertInvoice(Invoice invoice);
         Invoice UpdateInvoice(Invoice invoice);
         void DeleteInvoice(int id);
@@ -18,4 +17,5 @@ namespace Domain.Repositories
 
         Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
     }
+
 }
