@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Repositories
 {
-    public class InvoiceItemRepository : IInvoiceItemRepository
+    public  class InvoiceItemRepository : IInvoiceItemRepository
     {
         private readonly RepositoryDbContext _dbContext;
 
         public InvoiceItemRepository(RepositoryDbContext dbContext)
         {
-            this._dbContext = dbContext;
+            _dbContext = dbContext;
         }
 
         public IEnumerable<InvoiceItem> GetInvoiceItems()

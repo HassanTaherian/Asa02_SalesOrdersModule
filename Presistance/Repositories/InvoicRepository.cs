@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Repositories
 {
-    public class InvoiceRepository : IInvoiceRepository
+    public  class InvoiceRepository : IInvoiceRepository
     {
         private readonly RepositoryDbContext _dbContext;
 
@@ -19,12 +19,21 @@ namespace Persistence.Repositories
         public async Task<Invoice?> GetInvoiceById(long id) 
             => await _dbContext.Invoices.FindAsync(id);
 
-        public async Task<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState)
+        public async Task<Invoice?> GetCartOfUser(int userId)
         {
-             var userInvoice = await _dbContext.Invoices
+            var userInvoice =await  _dbContext.Invoices
+                .Where(invoice => invoice.UserId == userId && invoice.State
+                    == InvoiceState.CartState).FirstOrDefaultAsync();
+            return userInvoice;
+
+        }
+
+        public IEnumerable<Invoice> GetInvoiceByState(int userId, InvoiceState invoiceState)
+        {
+             var userInvoices = _dbContext.Invoices
                  .Where(invoice => invoice.UserId == userId && 
-                        invoice.State == invoiceState).FirstOrDefaultAsync();
-             return userInvoice;
+                        invoice.State == invoiceState);
+             return userInvoices;
         }
 
         public async Task<Invoice> InsertInvoice(Invoice invoice)
