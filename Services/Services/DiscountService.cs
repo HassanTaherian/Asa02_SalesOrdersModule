@@ -19,7 +19,7 @@ namespace Services.Services
                 (additionalInvoiceDataDto.UserId);
             if (invoice != null)
             {
-                    invoice.AddressId = additionalInvoiceDataDto.AddressId;
+                    invoice.DiscountCode = additionalInvoiceDataDto.DiscountCode;
                     InvoiceRepository.UpdateInvoice(invoice);
                     await InvoiceRepository.SaveChangesAsync(cancellationToken);
             }
