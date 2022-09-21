@@ -19,19 +19,19 @@ namespace Asa02_SalesOrdersModule.Controllers
 
         [HttpPatch]
         public async Task<IActionResult> AddDiscountCode(
-            [FromBody] AddressInvoiceDataDto additionalInvoiceDataDto)
+            [FromBody]  DiscountCodeRequestDto discountCodeRequestDto)
         {
             await _discountService.SetDiscountCodeAsync
-                (additionalInvoiceDataDto , CancellationToken.None);
+                (discountCodeRequestDto, CancellationToken.None);
             return Ok("Successful");
         }
 
          [HttpPatch]
          public async Task<IActionResult> AddAddressCode(
-             [FromBody] AddressInvoiceDataDto additionalInvoiceDataDto)
+             [FromBody] AddressInvoiceDataDto addressInvoiceDataDto)
          {
              await _addressService.SetAddressIdAsync
-                 (additionalInvoiceDataDto , CancellationToken.None);
+                 (addressInvoiceDataDto, CancellationToken.None);
              return NoContent();
          }
     }
