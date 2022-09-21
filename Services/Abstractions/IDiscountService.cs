@@ -1,10 +1,14 @@
-﻿using Contracts.UI;
+﻿using Contracts.Discount;
+using Contracts.UI;
 
 namespace Services.Abstractions
 {
     public interface IDiscountService
     {
-        public Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto
+        Task SendDiscountCodeAsync
+            (DiscountCodeRequestDto discountCodeRequestDto);
+         
+             Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto
             , CancellationToken cancellationToken);
     }
 }
