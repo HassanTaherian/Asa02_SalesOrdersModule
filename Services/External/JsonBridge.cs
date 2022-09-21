@@ -2,26 +2,26 @@
 
 namespace Services.External
 {
-    public class JsonBridge<T>
+    public class JsonBridge<TIn, TOut>
     {
-        public string Serialize(T item)
+        public string Serialize(TIn item)
         {
             return JsonConvert.SerializeObject(item);
         }
 
-        public string SerializeList(ICollection<T> items)
+        public string SerializeList(ICollection<TIn> items)
         {
             return JsonConvert.SerializeObject(items);
         }
 
-        public ICollection<T>? DeserializeList(string json)
+        public ICollection<TOut>? DeserializeList(string json)
         {
-            return JsonConvert.DeserializeObject<ICollection<T>>(json);
+            return JsonConvert.DeserializeObject<ICollection<TOut>>(json);
         }
 
-        public T? Deserialize(string json)
+        public TOut? Deserialize(string json)
         {
-            return JsonConvert.DeserializeObject<T>(json);
+            return JsonConvert.DeserializeObject<TOut>(json);
         }
     }
 }

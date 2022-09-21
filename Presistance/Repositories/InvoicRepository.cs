@@ -94,11 +94,12 @@ namespace Persistence.Repositories
                 return null;
             }
 
-            return invoice.InvoiceItems.Where(invoiceItem => invoiceItem.IsInSecondCard = false);
+            return invoice.InvoiceItems.Where
+                (invoiceItem => invoiceItem.IsInSecondCard = false);
         }
 
 
-        public async Task<IEnumerable?> GetItemsOfCart(int userId , bool isInSecondCart)
+        public async Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId , bool isInSecondCart)
         {
             var invoice = await GetCartOfUser(userId);
             return invoice?.InvoiceItems.Where

@@ -24,16 +24,18 @@ namespace Services.Services
             var result = await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
 
             var invoice = await _invoiceRepository.GetItemsOfInvoice(dto.UserId);
-            var countingDtos = MapInvoiceConfig(invoice, ProductCountingState.ShopState);
+            var countingDtos =
+                MapInvoiceConfig(invoice, ProductCountingState.ShopState);
 
-            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto>();
+            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto, Boolean>();
             var json = jsonBridge.SerializeList(countingDtos);
             await _httpProvider.Post("url", json);
 
             return true;
         }
 
-        private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig(IEnumerable<InvoiceItem> invoiceItems, ProductCountingState state)
+        private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig
+            (IEnumerable<InvoiceItem> invoiceItems, ProductCountingState state)
         {
             var countingDtos = new List<ProductUpdateCountingItemRequestDto>();
 

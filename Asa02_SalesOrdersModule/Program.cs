@@ -2,6 +2,7 @@ using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
 using Services.Abstractions;
+using Services.External;
 using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 // builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDiscountService, DiscountService>();
 builder.Services.AddScoped<ISecondCartService, SecondCartService>();
+builder.Services.AddSingleton<IHttpProvider, HttpProvider>();
 // TODO: Inject HttpClient
 
 

@@ -18,7 +18,7 @@ namespace Domain.Repositories
 
         Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
 
-        Task<IEnumerable?> GetItemsOfCart(int userId , bool isInSecondCart);
+        Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId , bool isInSecondCart);
 
       //  Task GetProductItemById(int productId);
 
