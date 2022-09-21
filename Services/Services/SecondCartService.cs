@@ -17,44 +17,28 @@ namespace Services.Services
         public async Task<IEnumerable?> GetSecondCartItems
             (ProductToSecondCartResponseDto productToSecondCartResponseDto)
         {
-            var userCart = await InvoiceRepository.GetCartOfUser
-                (productToSecondCartResponseDto.UserId);
-
-            var secondCartItems = userCart?.InvoiceItems
-                .Where(item => item.IsInSecondCard);
-            return secondCartItems;
+            return await InvoiceRepository.GetItemsOfCart
+                (productToSecondCartResponseDto.UserId , true);
         }
 
         public async Task ToggleItemInTheCart
-        (ProductToSecondCartRequestDto productToSecondCardRequestDto,
+        (ProductToSecondCartRequestDto productToSecondCardRequestDto , 
             CancellationToken cancellationToken)
         {
-            var userCart = await InvoiceRepository.GetInvoiceById
-                (productToSecondCardRequestDto.InvoiceId);
-            var cartItem = userCart?.InvoiceItems
-                        .FirstOrDefault(cartItem => 
-                            cartItem.ProductId == productToSecondCardRequestDto.ProductId);
-            if (cartItem != null)
-            {
-                cartItem.IsInSecondCard = !(cartItem.IsInSecondCard);
-                await InvoiceRepository.SaveChangesAsync(cancellationToken);
-            }
+            await InvoiceRepository.ToggleItemInTheCart
+            (productToSecondCardRequestDto.InvoiceId,
+                productToSecondCardRequestDto.ProductId);
+            await InvoiceRepository.SaveChangesAsync(cancellationToken);
         }
 
         public async Task DeleteItemFromTheSecondList
         (ProductToSecondCartRequestDto productToSecondCartRequestDto,
             CancellationToken cancellationToken)
         {
-            var userCart = await InvoiceRepository.GetInvoiceById
-                (productToSecondCartRequestDto.InvoiceId);
-            var cartItem = userCart?.InvoiceItems
-                .FirstOrDefault(cartItem =>
-                    cartItem.ProductId == productToSecondCartRequestDto.ProductId);
-            if (cartItem != null)
-            {
-                cartItem.IsDeleted = true;
-                await InvoiceRepository.SaveChangesAsync(cancellationToken);
-            }
+            await InvoiceRepository.DeleteItemFromTheSecondCart
+            (productToSecondCartRequestDto.InvoiceId,
+                productToSecondCartRequestDto.ProductId);
+            await InvoiceRepository.SaveChangesAsync(cancellationToken);
         }
 
         

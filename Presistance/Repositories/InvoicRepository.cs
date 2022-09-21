@@ -1,4 +1,6 @@
-﻿using Contracts.UI.Cart;
+﻿using System.Collections;
+using System.Threading;
+using Contracts.UI.Cart;
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.ValueObjects;
@@ -22,6 +24,7 @@ namespace Persistence.Repositories
         public async Task<Invoice?> GetInvoiceById(long id)
             => await _dbContext.Invoices.FindAsync(id);
 
+
         public async Task<Invoice?> GetCartOfUser(int userId)
         {
             var userInvoice = await _dbContext.Invoices
@@ -29,6 +32,7 @@ namespace Persistence.Repositories
                     == InvoiceState.CartState).Include(invoice => invoice.InvoiceItems).FirstOrDefaultAsync();
             return userInvoice;
         }
+
 
         public IEnumerable<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState)
         {
@@ -90,7 +94,41 @@ namespace Persistence.Repositories
                 return null;
             }
 
-            return invoice.InvoiceItems;
+            return invoice.InvoiceItems.Where(invoiceItem => invoiceItem.IsInSecondCard = false);
+        }
+
+
+        public async Task<IEnumerable?> GetItemsOfCart(int userId , bool isInSecondCart)
+        {
+            var invoice = await GetCartOfUser(userId);
+            return invoice?.InvoiceItems.Where
+                (invoiceItem => invoiceItem.IsInSecondCard = isInSecondCart);
+        }
+
+
+        public async Task ToggleItemInTheCart(long invoiceId , int productId)
+        {
+            var invoice = await GetInvoiceById(invoiceId);
+            var cartItem = invoice?.InvoiceItems
+                .FirstOrDefault(cartItem =>
+                    cartItem.ProductId == productId);
+            if (cartItem != null)
+            {
+                cartItem.IsInSecondCard = !(cartItem.IsInSecondCard);
+            }
+        }
+
+        public async Task DeleteItemFromTheSecondCart(long invoiceId , int productId)
+        {
+            var invoice = await GetInvoiceById(invoiceId);
+
+            var cartItem = invoice?.InvoiceItems
+                .FirstOrDefault(cartItem =>
+                    cartItem.ProductId == productId);
+            if (cartItem != null)
+            {
+                cartItem.IsDeleted = true;
+            }
         }
 
         public int SaveChanges()
