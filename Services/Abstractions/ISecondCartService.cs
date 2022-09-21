@@ -9,11 +9,7 @@ namespace Services.Abstractions
         Task<IEnumerable?> GetSecondCartItems
             (ProductToSecondCartResponseDto productToSecondCartResponseDto);
 
-        Task PutItemInTheSecondCard
-        (ProductToSecondCartRequestDto productToSecondCartRequestDto
-            , CancellationToken cancellationToken);
-
-        Task BackItemToTheCart
+        Task ToggleItemInTheCart
         (ProductToSecondCartRequestDto productToSecondCartRequestDto
             , CancellationToken cancellationToken);
 

@@ -64,11 +64,7 @@ namespace Persistence.Repositories
             _dbContext.Invoices.Remove(invoice);
         }
 
-        public int SaveChanges()
-        {
-            var returnValue = _unitOfWork.SaveChanges();
-            return returnValue;
-        }
+        
 
         public async Task<bool> ChangeInvoiceState(int userId, InvoiceState newState)
         {
@@ -95,6 +91,12 @@ namespace Persistence.Repositories
             }
 
             return invoice.InvoiceItems;
+        }
+
+        public int SaveChanges()
+        {
+            var returnValue = _unitOfWork.SaveChanges();
+            return returnValue;
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)

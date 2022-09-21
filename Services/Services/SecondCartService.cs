@@ -14,7 +14,18 @@ namespace Services.Services
             InvoiceRepository = invoiceRepository;
         }
 
-        public async Task PutItemInTheSecondCard
+        public async Task<IEnumerable?> GetSecondCartItems
+            (ProductToSecondCartResponseDto productToSecondCartResponseDto)
+        {
+            var userCart = await InvoiceRepository.GetCartOfUser
+                (productToSecondCartResponseDto.UserId);
+
+            var secondCartItems = userCart?.InvoiceItems
+                .Where(item => item.IsInSecondCard);
+            return secondCartItems;
+        }
+
+        public async Task ToggleItemInTheCart
         (ProductToSecondCartRequestDto productToSecondCardRequestDto,
             CancellationToken cancellationToken)
         {
@@ -25,23 +36,7 @@ namespace Services.Services
                             cartItem.ProductId == productToSecondCardRequestDto.ProductId);
             if (cartItem != null)
             {
-                cartItem.IsInSecondCard = true;
-                await InvoiceRepository.SaveChangesAsync(cancellationToken);
-            }
-        }
-
-        public async Task BackItemToTheCart
-        (ProductToSecondCartRequestDto productToSecondCartRequestDto,
-            CancellationToken cancellationToken)
-        {
-            var userCart = await InvoiceRepository.GetInvoiceById
-                (productToSecondCartRequestDto.InvoiceId);
-            var cartItem = userCart?.InvoiceItems
-                .FirstOrDefault(product =>
-                    product.ProductId == productToSecondCartRequestDto.ProductId);
-            if (cartItem != null)
-            {
-                cartItem.IsInSecondCard = false;
+                cartItem.IsInSecondCard = !(cartItem.IsInSecondCard);
                 await InvoiceRepository.SaveChangesAsync(cancellationToken);
             }
         }
@@ -53,24 +48,15 @@ namespace Services.Services
             var userCart = await InvoiceRepository.GetInvoiceById
                 (productToSecondCartRequestDto.InvoiceId);
             var cartItem = userCart?.InvoiceItems
-                .FirstOrDefault(product =>
-                    product.ProductId == productToSecondCartRequestDto.ProductId);
+                .FirstOrDefault(cartItem =>
+                    cartItem.ProductId == productToSecondCartRequestDto.ProductId);
             if (cartItem != null)
             {
-                userCart?.InvoiceItems.Remove(cartItem);
+                cartItem.IsDeleted = true;
                 await InvoiceRepository.SaveChangesAsync(cancellationToken);
             }
         }
 
-        public async Task<IEnumerable?> GetSecondCartItems
-        (ProductToSecondCartResponseDto productToSecondCartResponseDto)
-        {
-            var userCart = await InvoiceRepository.GetCartOfUser
-                (productToSecondCartResponseDto.UserId);
-
-            var secondCartItems = userCart?.InvoiceItems
-                    .Where(item => item.IsInSecondCard);
-                return secondCartItems;
-        }
+        
     }
 }
