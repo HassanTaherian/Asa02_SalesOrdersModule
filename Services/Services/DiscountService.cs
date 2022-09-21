@@ -6,22 +6,22 @@ namespace Services.Services
 {
     public sealed class DiscountService : IDiscountService
     {
-        public IInvoiceRepository InvoiceRepository { get; }
+        private readonly IInvoiceRepository _invoiceRepository;
 
         public DiscountService(IInvoiceRepository invoiceRepository) =>
-            InvoiceRepository = invoiceRepository;
+            _invoiceRepository = invoiceRepository;
 
         public async Task
             SetDiscountCodeAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto,
                 CancellationToken cancellationToken)
         {
-            var invoice = await InvoiceRepository.GetCartOfUser
+            var invoice = await _invoiceRepository.GetCartOfUser
                 (additionalInvoiceDataDto.UserId);
             if (invoice != null)
             {
                     invoice.DiscountCode = additionalInvoiceDataDto.DiscountCode;
-                    InvoiceRepository.UpdateInvoice(invoice);
-                    await InvoiceRepository.SaveChangesAsync(cancellationToken);
+                    _invoiceRepository.UpdateInvoice(invoice);
+                    await _invoiceRepository.SaveChangesAsync(cancellationToken);
             }
         }
 

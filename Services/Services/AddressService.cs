@@ -6,26 +6,24 @@ namespace Services.Services
 {
     public sealed class AddressService : IAddressService
     {
-        private readonly IInvoiceRepository _invoiceRepository; 
+        private readonly IInvoiceRepository _invoiceRepository;
 
         public AddressService(IInvoiceRepository invoiceRepository)
         {
             _invoiceRepository = invoiceRepository;
         }
 
-        public async Task 
-            SetAddressIdAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto , 
+        public async Task
+            SetAddressIdAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto,
                 CancellationToken cancellationToken)
         {
-            var invoice =await _invoiceRepository.GetCartOfUser
+            var invoice = await _invoiceRepository.GetCartOfUser
                 (additionalInvoiceDataDto.UserId);
             if (invoice != null)
             {
-                {
-                    invoice.AddressId = additionalInvoiceDataDto.AddressId;
-                    _invoiceRepository.UpdateInvoice(invoice);
-                   await _invoiceRepository.SaveChangesAsync(cancellationToken);
-                }
+                invoice.AddressId = additionalInvoiceDataDto.AddressId;
+                _invoiceRepository.UpdateInvoice(invoice);
+                await _invoiceRepository.SaveChangesAsync(cancellationToken);
             }
         }
     }
