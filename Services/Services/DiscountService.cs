@@ -12,19 +12,18 @@ namespace Services.Services
             _invoiceRepository = invoiceRepository;
 
         public async Task
-            SetDiscountCodeAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto,
+            SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto,
                 CancellationToken cancellationToken)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser
-                (additionalInvoiceDataDto.UserId);
+            var invoice = await InvoiceRepository.GetCartOfUser
+                (discountCodeRequestDto.UserId);
             if (invoice != null)
             {
-                    invoice.DiscountCode = additionalInvoiceDataDto.DiscountCode;
-                    _invoiceRepository.UpdateInvoice(invoice);
-                    await _invoiceRepository.SaveChangesAsync(cancellationToken);
+                    invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
+                    InvoiceRepository.UpdateInvoice(invoice);
+                    await InvoiceRepository.SaveChangesAsync(cancellationToken);
             }
         }
-
     }
 }
 

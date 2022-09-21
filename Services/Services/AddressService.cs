@@ -13,17 +13,19 @@ namespace Services.Services
             _invoiceRepository = invoiceRepository;
         }
 
-        public async Task
-            SetAddressIdAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto,
+        public async Task 
+            SetAddressIdAsync(AddressInvoiceDataDto addressInvoiceDataDto , 
                 CancellationToken cancellationToken)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser
-                (additionalInvoiceDataDto.UserId);
+            var invoice =await _invoiceRepository.GetCartOfUser
+                (addressInvoiceDataDto.UserId);
             if (invoice != null)
             {
-                invoice.AddressId = additionalInvoiceDataDto.AddressId;
-                _invoiceRepository.UpdateInvoice(invoice);
-                await _invoiceRepository.SaveChangesAsync(cancellationToken);
+                {
+                    invoice.AddressId = addressInvoiceDataDto.AddressId;
+                    _invoiceRepository.UpdateInvoice(invoice);
+                   await _invoiceRepository.SaveChangesAsync(cancellationToken);
+                }
             }
         }
     }

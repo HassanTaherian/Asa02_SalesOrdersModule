@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using System.Collections;
+using Domain.Entities;
 using Domain.ValueObjects;
 
 namespace Domain.Repositories
@@ -16,6 +17,15 @@ namespace Domain.Repositories
         Task<bool> ChangeInvoiceState(int userId, InvoiceState newState);
 
         Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
+
+        Task<IEnumerable?> GetItemsOfCart(int userId , bool isInSecondCart);
+
+      //  Task GetProductItemById(int productId);
+
+        Task ToggleItemInTheCart(long invoiceId , int productId);
+
+        Task DeleteItemFromTheSecondCart(long invoiceId, int productId);
+
     }
 
 }
