@@ -4,7 +4,7 @@ namespace Domain.Entities
 {
     public class Invoice : BaseEntity
     {
-        public long UserId { get; set; }
+        public int UserId { get; set; }
 
         public InvoiceState State { get; set; }
 

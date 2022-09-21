@@ -7,6 +7,6 @@ namespace Contracts.Marketing.Send
         public long InvoiceId { get; set; }
         public int UserId { get; set; }
         public InvoiceState InvoiceState { get; set; }
-        public DateTime ShopDateTime { get; set; }
+        public DateTime? ShopDateTime { get; set; }
     }
 }

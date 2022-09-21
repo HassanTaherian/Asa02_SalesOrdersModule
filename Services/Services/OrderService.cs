@@ -1,4 +1,5 @@
-﻿using Contracts.Product;
+﻿using Contracts.Marketing.Send;
+using Contracts.Product;
 using Contracts.UI.Checkout;
 using Domain.Entities;
 using Domain.Repositories;
@@ -21,21 +22,47 @@ namespace Services.Services
 
         public async Task<bool> Checkout(CheckoutRequestDto dto)
         {
+            var cart = await _invoiceRepository.GetCartOfUser(dto.UserId);
+
+            if (cart is null)
+            {
+                return false;
+            }
+
+            await DecreaseCountingOfProduct(cart.InvoiceItems, ProductCountingState.ShopState);
+            await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
+
             var result = await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
+            return result;
+        }
 
-            var invoice = await _invoiceRepository.GetItemsOfInvoice(dto.UserId);
-            var countingDtos =
-                MapInvoiceConfig(invoice, ProductCountingState.ShopState);
-
-            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto, Boolean>();
+        public async Task<bool> DecreaseCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)
+        {
+            var countingDtos = MapInvoiceConfig(items, state);
+            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto>();
             var json = jsonBridge.SerializeList(countingDtos);
             await _httpProvider.Post("url", json);
-
             return true;
         }
 
-        private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig
-            (IEnumerable<InvoiceItem> invoiceItems, ProductCountingState state)
+        public async Task<bool> SendInvoiceToMarketing(Invoice invoice, InvoiceState state)
+        {
+            var marketingInvoiceRequest = new MarketingInvoiceRequest
+            {
+                InvoiceId = invoice.Id,
+                UserId = invoice.UserId,
+                InvoiceState = state,
+                ShopDateTime = invoice.ShoppingDateTime
+            };
+
+            var jsonBridge = new JsonBridge<MarketingInvoiceRequest>();
+            var json = jsonBridge.Serialize(marketingInvoiceRequest);
+            await _httpProvider.Post("marketingUrl", json);
+            return true;
+        }
+
+        private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig(IEnumerable<InvoiceItem> invoiceItems,
+            ProductCountingState state)
         {
             var countingDtos = new List<ProductUpdateCountingItemRequestDto>();
 
