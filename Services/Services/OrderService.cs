@@ -1,5 +1,6 @@
 ﻿using Contracts.Marketing.Send;
 using Contracts.Product;
+using Contracts.UI;
 using Contracts.UI.Checkout;
 using Domain.Entities;
 using Domain.Repositories;
@@ -29,14 +30,30 @@ namespace Services.Services
                 return false;
             }
 
-            await DecreaseCountingOfProduct(cart.InvoiceItems, ProductCountingState.ShopState);
+            await UpdateCountingOfProduct(cart.InvoiceItems, ProductCountingState.ShopState);
             await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
 
             var result = await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
             return result;
         }
 
-        public async Task<bool> DecreaseCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)
+        public async Task<bool> Returning(ReturnProductItemRequestDto dto)
+        {
+            var invoice = await _invoiceRepository.GetInvoiceById(dto.InvoiceId);
+
+            if (invoice is null)
+            {
+                return false;
+            }
+
+            await UpdateCountingOfProduct(invoice.InvoiceItems, ProductCountingState.ReturnState);
+            await SendInvoiceToMarketing(invoice, InvoiceState.ReturnState);
+
+            var result = await _invoiceRepository.ChangeInvoiceState(invoice.UserId, InvoiceState.OrderState);
+            return result;
+        }
+
+        public async Task<bool> UpdateCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)
         {
             var countingDtos = MapInvoiceConfig(items, state);
             var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto>();
