@@ -14,8 +14,6 @@ namespace Domain.Repositories
         void DeleteInvoice(int id);
 
         Task<bool> ChangeInvoiceState(int userId, InvoiceState newState);
-
-        Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
     }
 
 }
