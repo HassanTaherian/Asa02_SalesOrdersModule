@@ -20,14 +20,46 @@ namespace Services.Services
         {
             var userCart = await InvoiceRepository.GetInvoiceById
                 (productToSecondCardRequestDto.InvoiceId);
-            var product = userCart?.InvoiceItems
-                        .FirstOrDefault(product => 
-                            product.ProductId == productToSecondCardRequestDto.ProductId);
-                    if (product != null)
-                    {
-                        product.IsInSecondCard = true;
-                        await InvoiceRepository.SaveChangesAsync(cancellationToken);
-                    }
+            var cartItem = userCart?.InvoiceItems
+                        .FirstOrDefault(cartItem => 
+                            cartItem.ProductId == productToSecondCardRequestDto.ProductId);
+            if (cartItem != null)
+            {
+                cartItem.IsInSecondCard = true;
+                await InvoiceRepository.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        public async Task BackItemToTheCart
+        (ProductToSecondCartRequestDto productToSecondCartRequestDto,
+            CancellationToken cancellationToken)
+        {
+            var userCart = await InvoiceRepository.GetInvoiceById
+                (productToSecondCartRequestDto.InvoiceId);
+            var cartItem = userCart?.InvoiceItems
+                .FirstOrDefault(product =>
+                    product.ProductId == productToSecondCartRequestDto.ProductId);
+            if (cartItem != null)
+            {
+                cartItem.IsInSecondCard = false;
+                await InvoiceRepository.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        public async Task DeleteItemFromTheSecondList
+        (ProductToSecondCartRequestDto productToSecondCartRequestDto,
+            CancellationToken cancellationToken)
+        {
+            var userCart = await InvoiceRepository.GetInvoiceById
+                (productToSecondCartRequestDto.InvoiceId);
+            var cartItem = userCart?.InvoiceItems
+                .FirstOrDefault(product =>
+                    product.ProductId == productToSecondCartRequestDto.ProductId);
+            if (cartItem != null)
+            {
+                userCart?.InvoiceItems.Remove(cartItem);
+                await InvoiceRepository.SaveChangesAsync(cancellationToken);
+            }
         }
 
         public async Task<IEnumerable?> GetSecondCartItems

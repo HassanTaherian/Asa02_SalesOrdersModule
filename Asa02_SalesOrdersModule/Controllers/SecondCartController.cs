@@ -2,11 +2,10 @@
 using Contracts.UI;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
-using Services.Services;
 
 namespace Asa02_SalesOrdersModule.Controllers
 {
-    [ApiController , Route("api/[controller]")]
+    [ApiController]
     public class SecondCartController : ControllerBase
     {
         private readonly ISecondCartService _secondCardService;
@@ -16,7 +15,16 @@ namespace Asa02_SalesOrdersModule.Controllers
             _secondCardService = secondCardService;
         }
 
-        [HttpPatch]
+
+        [HttpGet , Route("api/[controller]/get")]
+        public async Task<IEnumerable?> GetSecondCartItems
+            (ProductToSecondCartResponseDto productToSecondCartResponseDto)
+        {
+            return await _secondCardService.GetSecondCartItems(productToSecondCartResponseDto);
+        }
+
+
+        [HttpPatch , Route("api/[controller]/putItem")]
         public async Task<IActionResult> AddItemToSecondCart(
             [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto
             , CancellationToken cancellationToken)
@@ -26,12 +34,25 @@ namespace Asa02_SalesOrdersModule.Controllers
             return Ok("Successful");
         }
 
-        [HttpGet]
-        public async Task<IEnumerable?> GetSecondCartItems
-            (ProductToSecondCartResponseDto productToSecondCartResponseDto)
+
+        [HttpPatch , Route("api/[controller]/backItem")]
+        public async Task<IActionResult> BackItemToTheCart(
+            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto
+            , CancellationToken cancellationToken)
         {
-           return await _secondCardService.GetSecondCartItems(productToSecondCartResponseDto);
+            await _secondCardService.BackItemToTheCart
+                (productToSecondCardRequestDto, cancellationToken);
+            return Ok();
         }
 
+
+        [HttpDelete , Route("api/[controller]/remove")]
+        public async Task DeleteItemFromSecondList(
+            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto
+            , CancellationToken cancellationToken)
+        {
+            await _secondCardService.DeleteItemFromTheSecondList
+                (productToSecondCardRequestDto, cancellationToken);
+        }
     }
 }
