@@ -14,6 +14,10 @@ namespace Domain.Repositories
         void DeleteInvoice(int id);
 
         Task<bool> ChangeInvoiceState(int userId, InvoiceState newState);
+
+        Task<InvoiceItem?> GetInvoiceItem(long invoiceId, int productId);
+
+        Task<bool> ReturnInvoiceItem(long invoiceId);
     }
 
 }

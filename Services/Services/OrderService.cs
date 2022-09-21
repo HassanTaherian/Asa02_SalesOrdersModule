@@ -37,17 +37,27 @@ namespace Services.Services
             return result;
         }
 
-        public async Task<bool> Returning(ReturnProductItemRequestDto dto)
+        public async Task<bool> Returning(IList<ReturnProductItemRequestDto> dtos)
         {
-            var invoice = await _invoiceRepository.GetInvoiceById(dto.InvoiceId);
-
-            if (invoice is null)
+            var invoice = await _invoiceRepository.GetInvoiceById(dtos[0].InvoiceId);
+            var invoiceItems = new List<InvoiceItem>();
+            foreach (var dto in dtos)
             {
-                return false;
+                var productId = dto.ProductId;
+                var invoiceId = dto.InvoiceId;
+                var invoiceItem = await _invoiceRepository.GetInvoiceItem(invoiceId, productId);
+                invoiceItems.Add(invoiceItem);
             }
 
-            await UpdateCountingOfProduct(invoice.InvoiceItems, ProductCountingState.ReturnState);
+            await UpdateCountingOfProduct(invoiceItems, ProductCountingState.ReturnState);
             await SendInvoiceToMarketing(invoice, InvoiceState.ReturnState);
+
+            invoiceItems.ForEach(item =>
+            {
+                item.IsDeleted = true;
+            });
+
+            _invoiceRepository.UpdateInvoice(invoice);
 
             var result = await _invoiceRepository.ChangeInvoiceState(invoice.UserId, InvoiceState.OrderState);
             return result;

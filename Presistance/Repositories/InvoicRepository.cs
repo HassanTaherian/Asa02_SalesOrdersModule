@@ -85,6 +85,20 @@ namespace Persistence.Repositories
             return true;
         }
 
+        public async Task<InvoiceItem?> GetInvoiceItem(long invoiceId, int productId)
+        {
+            var invoice = await GetInvoiceById(invoiceId);
+
+            if (invoice is null)
+            {
+                return null;
+            }
+
+            var invoiceItem = invoice.InvoiceItems.SingleOrDefault(invoiceItem => invoiceItem.ProductId == productId);
+
+            return invoiceItem;
+        }
+
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
 
         {

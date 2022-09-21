@@ -8,7 +8,7 @@ namespace Services.Abstractions
     public interface IOrderService
     {
         Task<bool> Checkout(CheckoutRequestDto dto);
-        Task<bool> Returning(ReturnProductItemRequestDto dto);
+        Task<bool> Returning(ICollection<ReturnProductItemRequestDto> dto);
 
         Task<bool> UpdateCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state);
 
