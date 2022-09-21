@@ -14,15 +14,15 @@ namespace Services.Services
         }
 
         public async Task 
-            SetAddressIdAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto , 
+            SetAddressIdAsync(AddressInvoiceDataDto addressInvoiceDataDto , 
                 CancellationToken cancellationToken)
         {
             var invoice =await _invoiceRepository.GetCartOfUser
-                (additionalInvoiceDataDto.UserId);
+                (addressInvoiceDataDto.UserId);
             if (invoice != null)
             {
                 {
-                    invoice.AddressId = additionalInvoiceDataDto.AddressId;
+                    invoice.AddressId = addressInvoiceDataDto.AddressId;
                     _invoiceRepository.UpdateInvoice(invoice);
                    await _invoiceRepository.SaveChangesAsync(cancellationToken);
                 }

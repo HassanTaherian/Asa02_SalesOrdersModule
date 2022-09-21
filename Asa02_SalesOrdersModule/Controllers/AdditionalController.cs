@@ -19,7 +19,7 @@ namespace Asa02_SalesOrdersModule.Controllers
 
         [HttpPatch]
         public async Task<IActionResult> AddDiscountCode(
-            [FromBody] AdditionalInvoiceDataDto additionalInvoiceDataDto)
+            [FromBody] AddressInvoiceDataDto additionalInvoiceDataDto)
         {
             await _discountService.SetDiscountCodeAsync
                 (additionalInvoiceDataDto , CancellationToken.None);
@@ -28,7 +28,7 @@ namespace Asa02_SalesOrdersModule.Controllers
 
          [HttpPatch]
          public async Task<IActionResult> AddAddressCode(
-             [FromBody] AdditionalInvoiceDataDto additionalInvoiceDataDto)
+             [FromBody] AddressInvoiceDataDto additionalInvoiceDataDto)
          {
              await _addressService.SetAddressIdAsync
                  (additionalInvoiceDataDto , CancellationToken.None);
