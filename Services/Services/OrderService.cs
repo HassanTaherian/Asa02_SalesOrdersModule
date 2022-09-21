@@ -39,7 +39,7 @@ namespace Services.Services
         public async Task<bool> DecreaseCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)
         {
             var countingDtos = MapInvoiceConfig(items, state);
-            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto>();
+            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto, Boolean>();
             var json = jsonBridge.SerializeList(countingDtos);
             await _httpProvider.Post("url", json);
             return true;
@@ -55,7 +55,7 @@ namespace Services.Services
                 ShopDateTime = invoice.ShoppingDateTime
             };
 
-            var jsonBridge = new JsonBridge<MarketingInvoiceRequest>();
+            var jsonBridge = new JsonBridge<MarketingInvoiceRequest, Boolean>();
             var json = jsonBridge.Serialize(marketingInvoiceRequest);
             await _httpProvider.Post("marketingUrl", json);
             return true;
