@@ -9,56 +9,51 @@ namespace Services.Services
     public sealed class DiscountService : IDiscountService
     {
         private readonly IInvoiceRepository _invoiceRepository;
-        private readonly HttpProvider _httpProvider; 
+        private readonly HttpProvider _httpProvider;
 
-        public DiscountService(IInvoiceRepository invoiceRepository, 
+        public DiscountService(IInvoiceRepository invoiceRepository,
              HttpProvider httpProvider)
         {
             _invoiceRepository = invoiceRepository;
             _httpProvider = httpProvider;
         }
 
-        
-
         public async Task SendDiscountCodeAsync
             (DiscountCodeRequestDto discountCodeRequestDto)
         {
             var countingDto = MapDiscountConfig(discountCodeRequestDto);
 
-                var jsonBridge = new JsonBridge<DiscountRequestDto>();
-                var json = jsonBridge.Serialize(countingDto);
-                await _httpProvider.Post("url", json);
-            
+            var jsonBridge = new JsonBridge<DiscountRequestDto>();
+            var json = jsonBridge.Serialize(countingDto);
+            await _httpProvider.Post("url", json);
         }
 
-        
         private DiscountRequestDto MapDiscountConfig(
             DiscountCodeRequestDto discountCodeRequestDto)
         {
-            var invoice =  _invoiceRepository.GetCartOfUser
+            var invoice = _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId).Result;
 
-            var countingDtos = 
+            var countingDtos =
                 invoice?.InvoiceItems.Where
                         (invoiceItem => invoiceItem.IsInSecondCard = false)
-                    .Select(invoiceItem => new DiscountProductRequestDto() 
+                    .Select(invoiceItem => new DiscountProductRequestDto()
                     {
-                        ProductId = invoiceItem.ProductId, 
-                        Quantity = invoiceItem.Quantity, 
+                        ProductId = invoiceItem.ProductId,
+                        Quantity = invoiceItem.Quantity,
                         UnitPrice = invoiceItem.Price
-
                     }).ToList();
 
             var countingDto = new DiscountRequestDto()
-                {
-                    DiscountCode = discountCodeRequestDto.DiscountCode,
-                    UserId = discountCodeRequestDto.UserId,
-                    TotalPrice = TotalPrice(discountCodeRequestDto.UserId),
-                    Products = countingDtos
-                };
+            {
+                DiscountCode = discountCodeRequestDto.DiscountCode,
+                UserId = discountCodeRequestDto.UserId,
+                TotalPrice = TotalPrice(discountCodeRequestDto.UserId),
+                Products = countingDtos
+            };
 
-                return countingDto;
-            }
+            return countingDto;
+        }
 
         private double TotalPrice(int userId)
         {
@@ -72,21 +67,15 @@ namespace Services.Services
         public async Task SetDiscountCodeAsync
     (DiscountCodeRequestDto discountCodeRequestDto,
         CancellationToken cancellationToken)
-    {
-        var invoice = await _invoiceRepository.GetCartOfUser
-            (discountCodeRequestDto.UserId);
-        if (invoice != null)
         {
-            invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
-            _invoiceRepository.UpdateInvoice(invoice);
-            await _invoiceRepository.SaveChangesAsync(cancellationToken);
+            var invoice = await _invoiceRepository.GetCartOfUser
+                (discountCodeRequestDto.UserId);
+            if (invoice != null)
+            {
+                invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
+                _invoiceRepository.UpdateInvoice(invoice);
+                await _invoiceRepository.SaveChangesAsync(cancellationToken);
+            }
         }
     }
-
 }
-
-}
-
-        
-    
-
