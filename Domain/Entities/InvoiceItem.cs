@@ -14,7 +14,6 @@
    
         public bool IsInSecondCard { get; set; }
 
-        public DateTime? ReturnDateTime { get; set; }
-
+        public bool IsReturn { get; set; }
     }
 }

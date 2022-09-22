@@ -14,7 +14,7 @@ namespace Domain.Entities
 
         public int? AddressId { get; set; }
 
-        public bool IsReturn { get; set; }
+        public DateTime? ReturnDateTime { get; set; }
 
         public ICollection<InvoiceItem> InvoiceItems { get; set; }
     }
