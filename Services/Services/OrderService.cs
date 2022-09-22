@@ -12,9 +12,9 @@ namespace Services.Services
     public class OrderService : IOrderService
     {
         private readonly IInvoiceRepository _invoiceRepository;
-        private readonly HttpProvider _httpProvider;
+        private readonly IHttpProvider _httpProvider;
 
-        public OrderService(IInvoiceRepository invoiceRepository, HttpProvider httpProvider)
+        public OrderService(IInvoiceRepository invoiceRepository, IHttpProvider httpProvider)
         {
             _invoiceRepository = invoiceRepository;
             _httpProvider = httpProvider;
@@ -33,6 +33,8 @@ namespace Services.Services
             await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
 
             var result = await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
+            cart.ShoppingDateTime = DateTime.Now;
+            _invoiceRepository.UpdateInvoice(cart);
             return result;
         }
 
@@ -41,7 +43,7 @@ namespace Services.Services
             var countingDtos = MapInvoiceConfig(items, state);
             var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto, Boolean>();
             var json = jsonBridge.SerializeList(countingDtos);
-            await _httpProvider.Post("url", json);
+            await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/UpdateProductCounting", json);
             return true;
         }
 
@@ -57,7 +59,7 @@ namespace Services.Services
 
             var jsonBridge = new JsonBridge<MarketingInvoiceRequest, Boolean>();
             var json = jsonBridge.Serialize(marketingInvoiceRequest);
-            await _httpProvider.Post("marketingUrl", json);
+            await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/Marketing", json);
             return true;
         }
 

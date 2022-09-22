@@ -3,6 +3,6 @@
     public class MarketingStateRequestDto
     {
         public long InvoiceId { get; set; }
-        public long UserId { get; set; }
+        public int UserId { get; set; }
     }
 }
