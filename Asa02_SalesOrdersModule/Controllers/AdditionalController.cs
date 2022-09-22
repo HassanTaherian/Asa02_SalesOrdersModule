@@ -10,11 +10,11 @@ namespace Asa02_SalesOrdersModule.Controllers
         private readonly IDiscountService _discountService;
         private readonly IAddressService _addressService;
 
-        public AdditionalController(IDiscountService discountService,
-            IAddressService addressService)
+        public AdditionalController(
+            IAddressService addressService, IDiscountService discountService)
         {
-            _discountService = discountService;
             _addressService = addressService;
+            _discountService = discountService;
         }
 
         [HttpPatch]
@@ -26,15 +26,13 @@ namespace Asa02_SalesOrdersModule.Controllers
             return Ok("Successful");
         }
 
-         [HttpPatch]
-         public async Task<IActionResult> AddAddressCode(
-             [FromBody] AddressInvoiceDataDto addressInvoiceDataDto)
-         {
-             await _addressService.SetAddressIdAsync
-                 (addressInvoiceDataDto, CancellationToken.None);
-             return NoContent();
-         }
+        [HttpPatch]
+        public async Task<IActionResult> AddAddressCode(
+            [FromBody] AddressInvoiceDataDto addressInvoiceDataDto)
+        {
+            await _addressService.SetAddressIdAsync
+                (addressInvoiceDataDto, CancellationToken.None);
+            return Ok();
+        }
     }
-
 }
-        

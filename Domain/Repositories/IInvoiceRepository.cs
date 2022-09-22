@@ -16,6 +16,8 @@ namespace Domain.Repositories
 
         Task<bool> ChangeInvoiceState(int userId, InvoiceState newState);
 
+        Task<InvoiceItem?> GetInvoiceItem(long invoiceId, int productId);
+
         Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
 
         Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId , bool isInSecondCart);

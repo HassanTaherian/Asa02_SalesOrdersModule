@@ -1,4 +1,6 @@
-﻿using Contracts.Product;
+﻿using Contracts.Marketing.Send;
+using Contracts.Product;
+using Contracts.UI;
 using Contracts.UI.Checkout;
 using Domain.Entities;
 using Domain.Repositories;
@@ -11,9 +13,9 @@ namespace Services.Services
     public class OrderService : IOrderService
     {
         private readonly IInvoiceRepository _invoiceRepository;
-        private readonly HttpProvider _httpProvider;
+        private readonly IHttpProvider _httpProvider;
 
-        public OrderService(IInvoiceRepository invoiceRepository, HttpProvider httpProvider)
+        public OrderService(IInvoiceRepository invoiceRepository, IHttpProvider httpProvider)
         {
             _invoiceRepository = invoiceRepository;
             _httpProvider = httpProvider;
@@ -21,21 +23,76 @@ namespace Services.Services
 
         public async Task<bool> Checkout(CheckoutRequestDto dto)
         {
+            var cart = await _invoiceRepository.GetCartOfUser(dto.UserId);
+
+            if (cart is null)
+            {
+                return false;
+            }
+
+            await UpdateCountingOfProduct(cart.InvoiceItems, ProductCountingState.ShopState);
+            await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
+
             var result = await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
+            cart.ShoppingDateTime = DateTime.Now;
+            _invoiceRepository.UpdateInvoice(cart);
+            await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
+            return result;
+        }
 
-            var invoice = await _invoiceRepository.GetItemsOfInvoice(dto.UserId);
-            var countingDtos =
-                MapInvoiceConfig(invoice, ProductCountingState.ShopState);
+        public async Task<bool> Returning(IList<ReturnProductItemRequestDto> dtos)
+        {
+            var invoice = await _invoiceRepository.GetInvoiceById(dtos[0].InvoiceId);
+            var invoiceItems = new List<InvoiceItem>();
+            foreach (var dto in dtos)
+            {
+                var productId = dto.ProductId;
+                var invoiceId = dto.InvoiceId;
+                var invoiceItem = await _invoiceRepository.GetInvoiceItem(invoiceId, productId);
+                invoiceItems.Add(invoiceItem);
+            }
 
-            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto>();
+            await UpdateCountingOfProduct(invoiceItems, ProductCountingState.ReturnState);
+            await SendInvoiceToMarketing(invoice, InvoiceState.ReturnState);
+
+            invoiceItems.ForEach(item =>
+            {
+                item.IsDeleted = true;
+            });
+
+            _invoiceRepository.UpdateInvoice(invoice);
+
+            var result = await _invoiceRepository.ChangeInvoiceState(invoice.UserId, InvoiceState.OrderState);
+            return result;
+        }
+
+        public async Task<bool> UpdateCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)
+        {
+            var countingDtos = MapInvoiceConfig(items, state);
+            var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto, Boolean>();
             var json = jsonBridge.SerializeList(countingDtos);
-            await _httpProvider.Post("url", json);
-
+            await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/UpdateProductCounting", json);
             return true;
         }
 
-        private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig
-            (IEnumerable<InvoiceItem> invoiceItems, ProductCountingState state)
+        public async Task<bool> SendInvoiceToMarketing(Invoice invoice, InvoiceState state)
+        {
+            var marketingInvoiceRequest = new MarketingInvoiceRequest
+            {
+                InvoiceId = invoice.Id,
+                UserId = invoice.UserId,
+                InvoiceState = state,
+                ShopDateTime = invoice.ShoppingDateTime
+            };
+
+            var jsonBridge = new JsonBridge<MarketingInvoiceRequest, Boolean>();
+            var json = jsonBridge.Serialize(marketingInvoiceRequest);
+            await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/Marketing", json);
+            return true;
+        }
+
+        private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig(IEnumerable<InvoiceItem> invoiceItems,
+            ProductCountingState state)
         {
             var countingDtos = new List<ProductUpdateCountingItemRequestDto>();
 

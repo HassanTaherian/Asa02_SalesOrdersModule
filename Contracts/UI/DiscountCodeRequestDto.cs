@@ -5,7 +5,5 @@
         public int UserId { get; set; }
 
         public string? DiscountCode { get; set; }
-
-
     }
 }

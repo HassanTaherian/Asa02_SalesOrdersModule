@@ -5,10 +5,9 @@ namespace Services.Abstractions
 {
     public interface IDiscountService
     {
-        Task SendDiscountCodeAsync
-            (DiscountCodeRequestDto discountCodeRequestDto);
-         
-             Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto
+        Task<DiscountResponseDto> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto);
+
+        Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto
             , CancellationToken cancellationToken);
     }
 }

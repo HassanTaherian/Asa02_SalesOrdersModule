@@ -85,6 +85,13 @@ namespace Persistence.Repositories
             return true;
         }
 
+        public async Task<InvoiceItem?> GetInvoiceItem(long invoiceId, int productId)
+        {
+            var invoice = await GetInvoiceById(invoiceId);
+            var invoiceItem = invoice.InvoiceItems.Single(invoiceItem => invoiceItem.ProductId == productId);
+            return invoiceItem;
+        }
+
         public async Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId)
         {
             var invoice = await GetCartOfUser(userId);

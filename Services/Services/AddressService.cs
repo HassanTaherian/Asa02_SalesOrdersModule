@@ -6,7 +6,7 @@ namespace Services.Services
 {
     public sealed class AddressService : IAddressService
     {
-        private readonly IInvoiceRepository _invoiceRepository; 
+        private readonly IInvoiceRepository _invoiceRepository;
 
         public AddressService(IInvoiceRepository invoiceRepository)
         {
