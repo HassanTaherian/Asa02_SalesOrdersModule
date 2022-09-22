@@ -19,49 +19,8 @@ namespace Asa02_SalesOrdersModule.Controllers
         [HttpPost]
         public IActionResult RecommendUI(RecommendationRequestDto recommendationRequestDto)
         {
-            var RelatedItems = _recommendService.
-        }
-
-        // GET: RecommendController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: RecommendController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: RecommendController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: RecommendController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var RelatedItems = _recommendService.Recommended(recommendationRequestDto);
+            return Ok(RelatedItems);
         }
     }
 }

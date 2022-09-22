@@ -9,7 +9,7 @@ namespace Services.External
             return JsonConvert.SerializeObject(item);
         }
 
-        public string SerializeList(ICollection<TIn> items)
+        public string SerializeList(IEnumerable<TIn> items)
         {
             return JsonConvert.SerializeObject(items);
         }
