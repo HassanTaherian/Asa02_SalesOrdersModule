@@ -22,7 +22,7 @@ namespace Persistence.Repositories
         public IEnumerable<Invoice?> GetInvoices() => _dbContext.Invoices;
 
         public async Task<Invoice?> GetInvoiceById(long id)
-            => await _dbContext.Invoices.FindAsync(id);
+            => await _dbContext.Invoices.Include(invoice => invoice.InvoiceItems).SingleAsync(invoice => invoice.Id == id);
 
 
         public async Task<Invoice?> GetCartOfUser(int userId)

@@ -40,30 +40,28 @@ namespace Services.Services
             return result;
         }
 
-        public async Task<bool> Returning(IList<ReturnProductItemRequestDto> dtos)
+        public async Task<bool> Returning(ReturningRequestDto returningRequestDto)
         {
-            var invoice = await _invoiceRepository.GetInvoiceById(dtos[0].InvoiceId);
+            var invoice = await _invoiceRepository.GetInvoiceById(returningRequestDto.InvoiceId);
             var invoiceItems = new List<InvoiceItem>();
-            foreach (var dto in dtos)
+            foreach (var id in returningRequestDto.ProductIds)
             {
-                var productId = dto.ProductId;
-                var invoiceId = dto.InvoiceId;
-                var invoiceItem = await _invoiceRepository.GetInvoiceItem(invoiceId, productId);
+                var invoiceItem = await _invoiceRepository.GetInvoiceItem(returningRequestDto.InvoiceId, id);
+                invoiceItem.IsReturn = true;
                 invoiceItems.Add(invoiceItem);
             }
 
             await UpdateCountingOfProduct(invoiceItems, ProductCountingState.ReturnState);
             await SendInvoiceToMarketing(invoice, InvoiceState.ReturnState);
 
-            invoiceItems.ForEach(item =>
-            {
-                item.IsDeleted = true;
-            });
+            invoice.ReturnDateTime = DateTime.Now;
+            invoice.State = InvoiceState.ReturnState;
 
             _invoiceRepository.UpdateInvoice(invoice);
 
             var result = await _invoiceRepository.ChangeInvoiceState(invoice.UserId, InvoiceState.OrderState);
-            return result;
+            await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
+            return true;
         }
 
         public async Task<bool> UpdateCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)

@@ -31,9 +31,9 @@ namespace Asa02_SalesOrdersModule.Controllers
         }
 
         [HttpPost, Route("Returning")]
-        public async Task<IActionResult> Returning(IList<ReturnProductItemRequestDto> returningItems)
+        public async Task<IActionResult> Returning(ReturningRequestDto returningRequestDto)
         {
-            var result = await _orderService.Returning(returningItems);
+            var result = await _orderService.Returning(returningRequestDto);
 
             if (result)
             {

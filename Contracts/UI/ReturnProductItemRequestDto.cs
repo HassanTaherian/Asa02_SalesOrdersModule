@@ -1,8 +1,8 @@
 ﻿namespace Contracts.UI
 {
-    public class ReturnProductItemRequestDto
+    public class ReturningRequestDto
     {
         public long InvoiceId { get; set; }
-        public int ProductId { get; set; }
+        public ICollection<int> ProductIds { get; set; }
     }
 }
