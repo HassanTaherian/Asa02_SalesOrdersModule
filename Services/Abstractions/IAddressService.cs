@@ -4,7 +4,7 @@ namespace Services.Abstractions
 {
     public interface IAddressService
     {
-         Task SetAddressIdAsync(AdditionalInvoiceDataDto additionalInvoiceDataDto ,
+         Task SetAddressIdAsync(AddressInvoiceDataDto additionalInvoiceDataDto ,
              CancellationToken cancellationToken);
     }
 }

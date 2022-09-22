@@ -4,37 +4,35 @@ using Services.Abstractions;
 
 namespace Asa02_SalesOrdersModule.Controllers
 {
-    [ApiController, Route("/api/OrdersAdditional/[action]")]
+    [ApiController, Route("api/[controller]/[action]")]
     public class AdditionalController : ControllerBase
     {
         private readonly IDiscountService _discountService;
         private readonly IAddressService _addressService;
 
-        public AdditionalController(IDiscountService discountService,
-            IAddressService addressService)
+        public AdditionalController(
+            IAddressService addressService, IDiscountService discountService)
         {
-            _discountService = discountService;
             _addressService = addressService;
+            _discountService = discountService;
         }
 
         [HttpPatch]
         public async Task<IActionResult> AddDiscountCode(
-            [FromBody] AdditionalInvoiceDataDto additionalInvoiceDataDto)
+            [FromBody]  DiscountCodeRequestDto discountCodeRequestDto)
         {
             await _discountService.SetDiscountCodeAsync
-                (additionalInvoiceDataDto , CancellationToken.None);
+                (discountCodeRequestDto, CancellationToken.None);
             return Ok("Successful");
         }
 
         [HttpPatch]
         public async Task<IActionResult> AddAddressCode(
-            [FromBody] AdditionalInvoiceDataDto additionalInvoiceDataDto)
+            [FromBody] AddressInvoiceDataDto addressInvoiceDataDto)
         {
             await _addressService.SetAddressIdAsync
-                (additionalInvoiceDataDto, CancellationToken.None);
-            return NoContent();
+                (addressInvoiceDataDto, CancellationToken.None);
+            return Ok();
         }
     }
-
 }
-        

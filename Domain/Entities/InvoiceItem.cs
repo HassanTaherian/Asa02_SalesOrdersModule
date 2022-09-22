@@ -13,6 +13,8 @@
         public bool IsReturn { get; set; }
 
         public bool IsDeleted { get; set; }
+   
+        public bool IsInSecondCard { get; set; }
 
         public DateTime? ReturnDateTime { get; set; }
 

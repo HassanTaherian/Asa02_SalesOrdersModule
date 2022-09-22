@@ -2,15 +2,11 @@
 
 namespace Services.External
 {
-    public class HttpProvider
+    public class HttpProvider : IHttpProvider
     {
-        private readonly HttpClient _client;
+        private static readonly HttpClient _client = new HttpClient();
 
         // Todo: Inject from Program.cs
-        public HttpProvider(HttpClient client)
-        {
-            _client = client;
-        }
 
         public async Task<string> Get(string url)
         {
