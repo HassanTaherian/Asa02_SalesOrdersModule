@@ -14,6 +14,8 @@ namespace Domain.Entities
 
         public int? AddressId { get; set; }
 
+        public bool IsReturn { get; set; }
+
         public ICollection<InvoiceItem> InvoiceItems { get; set; }
     }
 }
