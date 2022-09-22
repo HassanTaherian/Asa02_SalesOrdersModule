@@ -10,11 +10,8 @@ namespace Services.Services
     public sealed class DiscountService : IDiscountService
     {
         private readonly IInvoiceRepository _invoiceRepository;
-        private readonly HttpProvider _httpProvider;
         private readonly IHttpProvider _httpProvider;
 
-        public DiscountService(IInvoiceRepository invoiceRepository,
-             HttpProvider httpProvider)
         public DiscountService(IInvoiceRepository invoiceRepository,
             IHttpProvider httpProvider)
         {
@@ -22,10 +19,8 @@ namespace Services.Services
             _httpProvider = httpProvider;
         }
 
-        public async Task SendDiscountCodeAsync
+        public async Task<DiscountResponseDto> SendDiscountCodeAsync
             (DiscountCodeRequestDto discountCodeRequestDto)
-
-        public async Task<DiscountResponseDto> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
         {
             var discountRequestDto = await MapInvoiceToDiscountRequestDto(discountCodeRequestDto);
 
@@ -40,47 +35,23 @@ namespace Services.Services
         {
             var invoice = await _invoiceRepository.GetInvoiceById(invoiceId);
 
-            var jsonBridge = new JsonBridge<DiscountRequestDto>();
-            var json = jsonBridge.Serialize(countingDto);
-            await _httpProvider.Post("url", json);
-            foreach (var discountProductResponseDto in discountResponseDto.Products)
-            {
-                var items = invoice.InvoiceItems;
-                var invoiceItem = items.Single(item => item.ProductId == discountProductResponseDto.ProductId);
-                invoiceItem.NewPrice = discountProductResponseDto.UnitPrice;
-            }
+            if (discountResponseDto.Products != null)
+                foreach (var discountProductResponseDto in discountResponseDto.Products)
+                {
+                    var items = invoice?.InvoiceItems;
+                    var invoiceItem = items.Single(item => item.ProductId == discountProductResponseDto.ProductId);
+                    invoiceItem.NewPrice = discountProductResponseDto.UnitPrice;
+                }
 
             _invoiceRepository.UpdateInvoice(invoice);
             await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
         }
 
-        private DiscountRequestDto MapDiscountConfig(
-
-        private async Task<DiscountRequestDto> MapInvoiceToDiscountRequestDto(
+        private Task<DiscountRequestDto> MapInvoiceToDiscountRequestDto(
             DiscountCodeRequestDto discountCodeRequestDto)
         {
             var invoice = _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId).Result;
-            var invoice = await _invoiceRepository.GetCartOfUser
-                (discountCodeRequestDto.UserId);
-
-            var countingDtos =
-                invoice?.InvoiceItems.Where
-                        (invoiceItem => invoiceItem.IsInSecondCard = false)
-                    .Select(invoiceItem => new DiscountProductRequestDto()
-                    {
-                        ProductId = invoiceItem.ProductId,
-                        Quantity = invoiceItem.Quantity,
-                        UnitPrice = invoiceItem.Price
-                    }).ToList();
-
-            var countingDto = new DiscountRequestDto()
-            {
-                DiscountCode = discountCodeRequestDto.DiscountCode,
-                UserId = discountCodeRequestDto.UserId,
-                TotalPrice = TotalPrice(discountCodeRequestDto.UserId),
-                Products = countingDtos
-            };
 
             var discountRequestDto = new DiscountRequestDto()
             {
@@ -89,18 +60,15 @@ namespace Services.Services
                 TotalPrice = TotalPrice(discountCodeRequestDto.UserId),
                 Products = MapInvoiceItemsToDiscountProductRequestDtos(invoice.InvoiceItems)
             };
-                };
-            return countingDto;
-        }
-            return discountRequestDto;
-        }
-            }
 
-        private IList<DiscountProductRequestDto> MapInvoiceItemsToDiscountProductRequestDtos(
-            ICollection<InvoiceItem> invoiceItems)
+            return Task.FromResult(discountRequestDto);
+        }
+
+        private static IList<DiscountProductRequestDto> MapInvoiceItemsToDiscountProductRequestDtos(
+            IEnumerable<InvoiceItem> invoiceItems)
         {
-            return invoiceItems.Where
-                    (invoiceItem => invoiceItem.IsInSecondCard == false && invoiceItem.IsDeleted == false)
+            return invoiceItems.Where(invoiceItem =>
+                    invoiceItem.IsInSecondCard == false && invoiceItem.IsDeleted == false)
                 .Select(invoiceItem => new DiscountProductRequestDto()
                 {
                     ProductId = invoiceItem.ProductId,
@@ -112,42 +80,26 @@ namespace Services.Services
         private double TotalPrice(int userId)
         {
             var invoice = _invoiceRepository.GetCartOfUser(userId).Result;
+            if (invoice is null) return 0;
 
-            if (invoice is null)
-            {
-                return 0;
-            }
-        public async Task SetDiscountCodeAsync
-    (DiscountCodeRequestDto discountCodeRequestDto,
-        CancellationToken cancellationToken)
-        {
-            var invoice = await _invoiceRepository.GetCartOfUser
-                (discountCodeRequestDto.UserId);
-            if (invoice != null)
-            {
-                invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
-                _invoiceRepository.UpdateInvoice(invoice);
-                await _invoiceRepository.SaveChangesAsync(cancellationToken);
-            }
-        }
-    }
-}
-            return invoice.InvoiceItems.Where(item => item.IsDeleted == false).Sum(item => item.Price * item.Quantity);
+            return invoice.InvoiceItems.Where(item => item.IsDeleted == false)
+                .Sum(item => item.Price * item.Quantity);
         }
 
         public async Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto,
-            CancellationToken cancellationToken)
+        CancellationToken cancellationToken)
         {
             var invoice = await _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
 
             var discountResponseDto = await SendDiscountCodeAsync(discountCodeRequestDto);
-            ApplyDiscountCode(discountResponseDto, invoice.Id);
-
-            if (invoice is not null)
+            if (invoice != null)
             {
+                ApplyDiscountCode(discountResponseDto, invoice.Id);
+
                 invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
                 _invoiceRepository.UpdateInvoice(invoice);
+
                 // TODO: Discount not saving
                 await _invoiceRepository.SaveChangesAsync(cancellationToken);
             }

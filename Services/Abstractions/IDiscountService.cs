@@ -7,6 +7,8 @@ namespace Services.Abstractions
     {
         Task<DiscountResponseDto> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto);
 
+        void ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId);
+
         Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto
             , CancellationToken cancellationToken);
     }
