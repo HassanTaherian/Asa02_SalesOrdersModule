@@ -85,7 +85,7 @@ namespace Persistence.Repositories
             return true;
         }
 
-        public async Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId)
+        public async Task<IEnumerable<InvoiceItem>>  GetItemsOfInvoice(int userId)
         {
             var invoice = await GetCartOfUser(userId);
             if (invoice is null)
