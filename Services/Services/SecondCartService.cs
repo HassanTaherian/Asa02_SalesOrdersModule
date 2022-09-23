@@ -21,21 +21,11 @@ namespace Services.Services
                 (productToSecondCartResponseDto.UserId, true);
         }
 
-        public async Task CartToSecondCart
+        public async Task ToggleItemInTheCart
         (ProductToSecondCartRequestDto productToSecondCardRequestDto,
             CancellationToken cancellationToken)
         {
-            await InvoiceRepository.FromCartToTheSecondCart
-            (productToSecondCardRequestDto.InvoiceId,
-                productToSecondCardRequestDto.ProductId);
-            await InvoiceRepository.SaveChangesAsync(cancellationToken);
-        }
-
-        public async Task SecondCartToCart
-        (ProductToSecondCartRequestDto productToSecondCardRequestDto,
-            CancellationToken cancellationToken)
-        {
-            await InvoiceRepository.FromSecondCartToTheCart
+            await InvoiceRepository.ToggleItemInTheCart
             (productToSecondCardRequestDto.InvoiceId,
                 productToSecondCardRequestDto.ProductId);
             await InvoiceRepository.SaveChangesAsync(cancellationToken);
