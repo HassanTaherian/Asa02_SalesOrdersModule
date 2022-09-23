@@ -37,7 +37,7 @@ namespace Services.Services
             await _invoiceRepository.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<DiscountResponseDto> SendDiscountCodeAsync
+        private async Task<DiscountResponseDto> SendDiscountCodeAsync
             (DiscountCodeRequestDto discountCodeRequestDto)
         {
             var discountRequestDto = await MapInvoiceToDiscountRequestDto(discountCodeRequestDto);
@@ -48,6 +48,7 @@ namespace Services.Services
                 ("https://localhost:7083/mock/DiscountMock/Index", json);
 
             var discountResponseDto = jsonBridge.Deserialize(response);
+
             return discountResponseDto;
         }
 
@@ -81,19 +82,19 @@ namespace Services.Services
                 }).ToList();
         }
 
-        public async Task<Invoice> ApplyDiscountCode(DiscountResponseDto discountResponseDto,
+        private async Task<Invoice> ApplyDiscountCode(DiscountResponseDto discountResponseDto,
             long invoiceId)
         {
             var invoice = await _invoiceRepository.GetInvoiceById(invoiceId);
 
-            if (discountResponseDto.Products != null)
-                foreach (var discountProductResponseDto in discountResponseDto.Products)
-                {
-                    var items = invoice.InvoiceItems;
-                    var invoiceItem = items.Single(item
-                        => item.ProductId == discountProductResponseDto.ProductId);
-                    invoiceItem.NewPrice = discountProductResponseDto.UnitPrice;
-                }
+            if (discountResponseDto.Products == null) return invoice;
+            foreach (var discountProductResponseDto in discountResponseDto.Products)
+            {
+                var items = invoice.InvoiceItems;
+                var invoiceItem = items.Single(item
+                    => item.ProductId == discountProductResponseDto.ProductId);
+                invoiceItem.NewPrice = discountProductResponseDto.UnitPrice;
+            }
             return invoice;
         }
 
