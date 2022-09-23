@@ -22,7 +22,8 @@ namespace Persistence.Repositories
         public IEnumerable<Invoice?> GetInvoices() => _dbContext.Invoices;
 
         public async Task<Invoice?> GetInvoiceById(long id)
-            => await _dbContext.Invoices.Include(invoice => invoice.InvoiceItems).SingleAsync(invoice => invoice.Id == id);
+            => await _dbContext.Invoices.Include(invoice => invoice.InvoiceItems)
+                .SingleAsync(invoice => invoice.Id == id);
 
 
         public async Task<Invoice?> GetCartOfUser(int userId)
@@ -36,7 +37,7 @@ namespace Persistence.Repositories
 
         public IEnumerable<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState)
         {
-            var userInvoices = _dbContext.Invoices
+            var userInvoices = _dbContext.Invoices.Include(invoice => invoice.InvoiceItems)
                 .Where(invoice => invoice.UserId == userId &&
                                   invoice.State == invoiceState);
             return userInvoices;
@@ -68,7 +69,6 @@ namespace Persistence.Repositories
             _dbContext.Invoices.Remove(invoice);
         }
 
-        
 
         public async Task<bool> ChangeInvoiceState(int userId, InvoiceState newState)
         {
@@ -106,7 +106,7 @@ namespace Persistence.Repositories
         }
 
 
-        public async Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId , bool isInSecondCart)
+        public async Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart)
         {
             var invoice = await GetCartOfUser(userId);
             return invoice?.InvoiceItems.Where
@@ -114,7 +114,7 @@ namespace Persistence.Repositories
         }
 
 
-        public async Task ToggleItemInTheCart(long invoiceId , int productId)
+        public async Task ToggleItemInTheCart(long invoiceId, int productId)
         {
             var invoice = await GetInvoiceById(invoiceId);
             var cartItem = invoice?.InvoiceItems
@@ -126,7 +126,7 @@ namespace Persistence.Repositories
             }
         }
 
-        public async Task DeleteItemFromTheSecondCart(long invoiceId , int productId)
+        public async Task DeleteItemFromTheSecondCart(long invoiceId, int productId)
         {
             var invoice = await GetInvoiceById(invoiceId);
 
@@ -145,10 +145,10 @@ namespace Persistence.Repositories
             return returnValue;
         }
 
-        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        public async Task<int> SaveChangesAsync()
 
         {
-            var returnValue = await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var returnValue = await _dbContext.SaveChangesAsync();
             return returnValue;
         }
     }

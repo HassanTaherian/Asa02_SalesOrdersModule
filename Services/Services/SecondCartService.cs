@@ -28,7 +28,7 @@ namespace Services.Services
             await InvoiceRepository.ToggleItemInTheCart
             (productToSecondCardRequestDto.InvoiceId,
                 productToSecondCardRequestDto.ProductId);
-            await InvoiceRepository.SaveChangesAsync(cancellationToken);
+            await InvoiceRepository.SaveChangesAsync();
         }
 
         public async Task DeleteItemFromTheSecondList
@@ -38,7 +38,7 @@ namespace Services.Services
             await InvoiceRepository.DeleteItemFromTheSecondCart
             (productToSecondCartRequestDto.InvoiceId,
                 productToSecondCartRequestDto.ProductId);
-            await InvoiceRepository.SaveChangesAsync(cancellationToken);
+            await InvoiceRepository.SaveChangesAsync();
         }
 
         

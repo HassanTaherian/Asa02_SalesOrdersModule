@@ -1,5 +1,4 @@
 ﻿using Contracts.UI.Recommendation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 
@@ -17,10 +16,10 @@ namespace Asa02_SalesOrdersModule.Controllers
 
         // POST: RecommendController/UI
         [HttpPost]
-        public IActionResult RecommendUI(RecommendationRequestDto recommendationRequestDto)
+        public async Task<IActionResult> RecommendUi(RecommendationRequestDto recommendationRequestDto)
         {
-            var RelatedItems = _recommendService.Recommended(recommendationRequestDto);
-            return Ok(RelatedItems);
+            var relatedItems = await _recommendService.Recommended(recommendationRequestDto);
+            return Ok(relatedItems);
         }
     }
 }

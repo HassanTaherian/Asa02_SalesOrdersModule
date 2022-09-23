@@ -22,7 +22,7 @@ namespace Persistence.Repositories
 
         public override int SaveChanges() => base.SaveChanges();
 
-        public new async Task<int> SaveChangesAsync(CancellationToken cancellationToken) 
-            => await base.SaveChangesAsync(cancellationToken);
+        async Task<int> IUnitOfWork.SaveChangesAsync() 
+            => await base.SaveChangesAsync();
     }
 }

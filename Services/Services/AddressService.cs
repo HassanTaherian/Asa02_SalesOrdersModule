@@ -24,7 +24,7 @@ namespace Services.Services
                 {
                     invoice.AddressId = addressInvoiceDataDto.AddressId;
                     _invoiceRepository.UpdateInvoice(invoice);
-                   await _invoiceRepository.SaveChangesAsync(cancellationToken);
+                   await _invoiceRepository.SaveChangesAsync();
                 }
             }
         }

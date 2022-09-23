@@ -46,7 +46,7 @@ namespace Services.Services
                 invoice.InvoiceItems.Add(item);
             }
 
-            await _invoiceRepository.SaveChangesAsync(cancellationToken);
+            await _invoiceRepository.SaveChangesAsync();
         }
 
         public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto, CancellationToken cancellationToken)
@@ -60,7 +60,7 @@ namespace Services.Services
                 }
             }
 
-            await _invoiceRepository.SaveChangesAsync(cancellationToken);
+            await _invoiceRepository.SaveChangesAsync();
         }
 
         public async Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto)
@@ -75,7 +75,7 @@ namespace Services.Services
             }
 
             _invoiceRepository.UpdateInvoice(invoice);
-            await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
+            await _invoiceRepository.SaveChangesAsync();
         }
     }
 }

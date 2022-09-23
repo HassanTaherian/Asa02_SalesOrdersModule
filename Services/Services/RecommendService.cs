@@ -1,20 +1,19 @@
-﻿using System.Collections;
-using Contracts.Product;
-using Contracts.UI.Checkout;
+﻿using Contracts.Product;
 using Contracts.UI.Recommendation;
 using Domain.Entities;
 using Domain.Repositories;
 using Domain.ValueObjects;
+using Services.Abstractions;
 using Services.External;
 
 namespace Services.Services
 {
-    public class RecommendService
+    public class RecommendService : IRecommendService
     {
         private readonly IInvoiceRepository _invoiceRepository;
-        private readonly HttpProvider _httpProvider;
+        private readonly IHttpProvider _httpProvider;
 
-        public RecommendService(IInvoiceRepository invoiceRepository, HttpProvider httpProvider)
+        public RecommendService(IInvoiceRepository invoiceRepository, IHttpProvider httpProvider)
         {
             _invoiceRepository = invoiceRepository;
             _httpProvider = httpProvider;
@@ -36,7 +35,7 @@ namespace Services.Services
 
             responseItems = relatedProducs.Concat(recommendationItemsFromDatabase);
 
-            var items = new RecommendationResponseDto() { ProductIds = responseItems };
+            var items = new RecommendationResponseDto { ProductIds = responseItems };
 
             return items;
         }
@@ -51,7 +50,8 @@ namespace Services.Services
 
             var jsonBridge = new JsonBridge<ProductRecommendRequestDto, ProductRecommendResponseDto>();
             var json = jsonBridge.Serialize(mapItem);
-            var productResponse = await _httpProvider.Post("Product url", json);
+            var productResponse =
+                await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/Recommendation", json);
             return productResponse;
         }
 
@@ -63,7 +63,8 @@ namespace Services.Services
             return productItems;
         }
 
-        public RecommendationResponseDto GetInvoiceItemsOfUserFromDatabase(RecommendationRequestDto recommendationRequestDto)
+        public RecommendationResponseDto GetInvoiceItemsOfUserFromDatabase(
+            RecommendationRequestDto recommendationRequestDto)
         {
             var invoices = GetOrderAndReturnInvoiceOfUser(recommendationRequestDto);
             var recommendationResponseDto = GetIsDeletedProductItemsOfUser(invoices);
@@ -74,7 +75,7 @@ namespace Services.Services
             RecommendationRequestDto recommendationRequestDto)
         {
             var orderInvoices =
-             _invoiceRepository.GetInvoiceByState(recommendationRequestDto.UserId, InvoiceState.OrderState);
+                _invoiceRepository.GetInvoiceByState(recommendationRequestDto.UserId, InvoiceState.OrderState);
             var returnInvoices =
                 _invoiceRepository.GetInvoiceByState(recommendationRequestDto.UserId, InvoiceState.ReturnState);
 
@@ -98,10 +99,9 @@ namespace Services.Services
                     }
                 }
             }
+
             var items = new RecommendationResponseDto() { ProductIds = addItems };
             return items;
         }
-
-
     }
 }

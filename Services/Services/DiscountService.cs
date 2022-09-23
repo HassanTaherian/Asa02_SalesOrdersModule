@@ -31,7 +31,7 @@ namespace Services.Services
             return discountResponseDto;
         }
 
-        public async void ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId)
+        public async Task ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId)
         {
             var invoice = await _invoiceRepository.GetInvoiceById(invoiceId);
 
@@ -43,7 +43,7 @@ namespace Services.Services
             }
 
             _invoiceRepository.UpdateInvoice(invoice);
-            await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
+            await _invoiceRepository.SaveChangesAsync();
         }
 
 
@@ -97,15 +97,12 @@ namespace Services.Services
                 (discountCodeRequestDto.UserId);
 
             var discountResponseDto = await SendDiscountCodeAsync(discountCodeRequestDto);
-            ApplyDiscountCode(discountResponseDto, invoice.Id);
+            await ApplyDiscountCode(discountResponseDto, invoice.Id);
 
-            if (invoice is not null)
-            {
-                invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
-                _invoiceRepository.UpdateInvoice(invoice);
-                // TODO: Discount not saving
-                await _invoiceRepository.SaveChangesAsync(cancellationToken);
-            }
+            invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
+            _invoiceRepository.UpdateInvoice(invoice);
+            // TODO: Discount not saving
+            await _invoiceRepository.SaveChangesAsync();
         }
     }
 }

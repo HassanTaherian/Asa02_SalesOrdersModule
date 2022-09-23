@@ -29,6 +29,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IDiscountService, DiscountService>();
 builder.Services.AddScoped<ISecondCartService, SecondCartService>();
+builder.Services.AddScoped<IRecommendService, RecommendService>();
 builder.Services.AddSingleton<IHttpProvider, HttpProvider>();
 // TODO: Inject HttpClient
 

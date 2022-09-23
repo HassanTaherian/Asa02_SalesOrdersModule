@@ -36,7 +36,7 @@ namespace Services.Services
             var result = await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
             cart.ShoppingDateTime = DateTime.Now;
             _invoiceRepository.UpdateInvoice(cart);
-            await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
+            await _invoiceRepository.SaveChangesAsync();
             return result;
         }
 
@@ -60,7 +60,7 @@ namespace Services.Services
             _invoiceRepository.UpdateInvoice(invoice);
 
             var result = await _invoiceRepository.ChangeInvoiceState(invoice.UserId, InvoiceState.OrderState);
-            await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
+            await _invoiceRepository.SaveChangesAsync();
             return true;
         }
 
