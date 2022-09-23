@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Threading;
-using Contracts.UI.Cart;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +22,6 @@ namespace Persistence.Repositories
             => await _dbContext.Invoices.Include(invoice => invoice.InvoiceItems)
                 .SingleAsync(invoice => invoice.Id == id);
 
-
         public async Task<Invoice?> GetCartOfUser(int userId)
         {
             var userInvoice = await _dbContext.Invoices
@@ -33,7 +29,6 @@ namespace Persistence.Repositories
                     == InvoiceState.CartState).Include(invoice => invoice.InvoiceItems).FirstOrDefaultAsync();
             return userInvoice;
         }
-
 
         public IEnumerable<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState)
         {
@@ -109,20 +104,31 @@ namespace Persistence.Repositories
         public async Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart)
         {
             var invoice = await GetCartOfUser(userId);
-            return invoice?.InvoiceItems.Where
+            return invoice.InvoiceItems.Where
                 (invoiceItem => invoiceItem.IsInSecondCard = isInSecondCart);
         }
 
+        public async Task FromCartToTheSecondCart(long invoiceId, int productId)
+        {
+            var invoice = await GetInvoiceById(invoiceId);
 
-        public async Task ToggleItemInTheCart(long invoiceId, int productId)
+            var cartItem = (invoice.InvoiceItems).
+                FirstOrDefault(item => item.ProductId == productId);
+            if (cartItem != null)
+            {
+                cartItem.IsInSecondCard = true;
+            }
+        }
+
+        public async Task FromSecondCartToTheCart(long invoiceId, int productId)
         {
             var invoice = await GetInvoiceById(invoiceId);
             var cartItem = invoice?.InvoiceItems
-                .FirstOrDefault(cartItem =>
-                    cartItem.ProductId == productId);
+                .FirstOrDefault(item =>
+                    item.ProductId == productId);
             if (cartItem != null)
             {
-                cartItem.IsInSecondCard = !(cartItem.IsInSecondCard);
+                cartItem.IsInSecondCard = false;
             }
         }
 

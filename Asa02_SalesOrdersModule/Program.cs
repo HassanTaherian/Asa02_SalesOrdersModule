@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<IUnitOfWork , RepositoryDbContext>(options =>
+builder.Services.AddDbContext<IUnitOfWork, RepositoryDbContext>(options =>
     {
         options.UseSqlServer(
             builder.Configuration.GetConnectionString("Asa02SalesOrdersModule")
@@ -32,7 +32,6 @@ builder.Services.AddScoped<ISecondCartService, SecondCartService>();
 builder.Services.AddScoped<IRecommendService, RecommendService>();
 builder.Services.AddSingleton<IHttpProvider, HttpProvider>();
 // TODO: Inject HttpClient
-
 
 var app = builder.Build();
 

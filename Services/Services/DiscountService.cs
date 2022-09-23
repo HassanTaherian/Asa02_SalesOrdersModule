@@ -103,6 +103,9 @@ namespace Services.Services
             _invoiceRepository.UpdateInvoice(invoice);
             // TODO: Discount not saving
             await _invoiceRepository.SaveChangesAsync();
+                // TODO: Discount not saving
+                await _invoiceRepository.SaveChangesAsync(cancellationToken);
+            }
         }
     }
 }

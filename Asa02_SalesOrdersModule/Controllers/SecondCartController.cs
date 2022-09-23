@@ -6,7 +6,7 @@ using Services.Abstractions;
 namespace Asa02_SalesOrdersModule.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class SecondCartController : ControllerBase
     {
         private readonly ISecondCartService _secondCardService;
@@ -16,25 +16,32 @@ namespace Asa02_SalesOrdersModule.Controllers
             _secondCardService = secondCardService;
         }
 
-
         [HttpGet]
-        public async Task<IEnumerable?> GetSecondCartItems
-            (ProductToSecondCartResponseDto productToSecondCartResponseDto)
+        public async Task<IEnumerable?> GetSecondCartItems([FromRoute]
+            ProductToSecondCartResponseDto productToSecondCartResponseDto)
         {
             return await _secondCardService.GetSecondCartItems(productToSecondCartResponseDto);
         }
 
-
         [HttpPatch]
-        public async Task<IActionResult> ToggleItemBetweenCarts(
+        public async Task<IActionResult> PutItemInTheSecondCart(
             [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto
             , CancellationToken cancellationToken)
         {
-            await _secondCardService.ToggleItemInTheCart
+            await _secondCardService.CartToSecondCart
                 (productToSecondCardRequestDto, cancellationToken);
             return Ok("Successful");
         }
 
+        [HttpPatch]
+        public async Task<IActionResult> BackItemToTheCart(
+            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto
+            , CancellationToken cancellationToken)
+        {
+            await _secondCardService.SecondCartToCart
+                (productToSecondCardRequestDto, cancellationToken);
+            return Ok("Successful");
+        }
 
         [HttpDelete]
         public async Task DeleteItemFromSecondList(
