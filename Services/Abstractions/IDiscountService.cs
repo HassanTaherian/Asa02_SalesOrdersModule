@@ -1,5 +1,6 @@
 ﻿using Contracts.Discount;
 using Contracts.UI;
+using Domain.Entities;
 
 namespace Services.Abstractions
 {
@@ -7,7 +8,7 @@ namespace Services.Abstractions
     {
         Task<DiscountResponseDto> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto);
 
-        void ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId);
+        Task<Invoice> ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId);
 
         Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto
             , CancellationToken cancellationToken);

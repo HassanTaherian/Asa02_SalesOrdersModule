@@ -4,7 +4,7 @@ using Services.Abstractions;
 
 namespace Asa02_SalesOrdersModule.Controllers
 {
-    [ApiController, Route("api/[controller]/[action]")]
+    [ApiController, Route("api/[controller]")]
     public class DiscountController : ControllerBase
     {
         private readonly IDiscountService _discountService;

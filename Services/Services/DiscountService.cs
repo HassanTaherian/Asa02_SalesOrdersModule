@@ -19,6 +19,24 @@ namespace Services.Services
             _httpProvider = httpProvider;
         }
 
+        public async Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto,
+            CancellationToken cancellationToken)
+        {
+            var invoice = await _invoiceRepository.GetCartOfUser
+                (discountCodeRequestDto.UserId);
+
+            var discountResponseDto = await SendDiscountCodeAsync(discountCodeRequestDto);
+
+            var returnedInvoice =
+                ApplyDiscountCode(discountResponseDto, invoice.Id);
+
+            returnedInvoice.Result.DiscountCode = discountCodeRequestDto.DiscountCode;
+
+            _invoiceRepository.UpdateInvoice(invoice);
+
+            await _invoiceRepository.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task<DiscountResponseDto> SendDiscountCodeAsync
             (DiscountCodeRequestDto discountCodeRequestDto)
         {
@@ -26,25 +44,11 @@ namespace Services.Services
 
             var jsonBridge = new JsonBridge<DiscountRequestDto, DiscountResponseDto>();
             var json = jsonBridge.Serialize(discountRequestDto);
-            var response = await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/Index", json);
+            var response = await _httpProvider.Post
+                ("https://localhost:7083/mock/DiscountMock/Index", json);
+
             var discountResponseDto = jsonBridge.Deserialize(response);
             return discountResponseDto;
-        }
-
-        public async void ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId)
-        {
-            var invoice = await _invoiceRepository.GetInvoiceById(invoiceId);
-
-            if (discountResponseDto.Products != null)
-                foreach (var discountProductResponseDto in discountResponseDto.Products)
-                {
-                    var items = invoice?.InvoiceItems;
-                    var invoiceItem = items.Single(item => item.ProductId == discountProductResponseDto.ProductId);
-                    invoiceItem.NewPrice = discountProductResponseDto.UnitPrice;
-                }
-
-            _invoiceRepository.UpdateInvoice(invoice);
-            await _invoiceRepository.SaveChangesAsync(CancellationToken.None);
         }
 
         private Task<DiscountRequestDto> MapInvoiceToDiscountRequestDto(
@@ -57,8 +61,8 @@ namespace Services.Services
             {
                 DiscountCode = discountCodeRequestDto.DiscountCode,
                 UserId = discountCodeRequestDto.UserId,
+                Products = MapInvoiceItemsToDiscountProductRequestDtos(invoice.InvoiceItems),
                 TotalPrice = TotalPrice(discountCodeRequestDto.UserId),
-                Products = MapInvoiceItemsToDiscountProductRequestDtos(invoice.InvoiceItems)
             };
 
             return Task.FromResult(discountRequestDto);
@@ -77,6 +81,22 @@ namespace Services.Services
                 }).ToList();
         }
 
+        public async Task<Invoice> ApplyDiscountCode(DiscountResponseDto discountResponseDto,
+            long invoiceId)
+        {
+            var invoice = await _invoiceRepository.GetInvoiceById(invoiceId);
+
+            if (discountResponseDto.Products != null)
+                foreach (var discountProductResponseDto in discountResponseDto.Products)
+                {
+                    var items = invoice.InvoiceItems;
+                    var invoiceItem = items.Single(item
+                        => item.ProductId == discountProductResponseDto.ProductId);
+                    invoiceItem.NewPrice = discountProductResponseDto.UnitPrice;
+                }
+            return invoice;
+        }
+
         private double TotalPrice(int userId)
         {
             var invoice = _invoiceRepository.GetCartOfUser(userId).Result;
@@ -84,25 +104,6 @@ namespace Services.Services
 
             return invoice.InvoiceItems.Where(item => item.IsDeleted == false)
                 .Sum(item => item.Price * item.Quantity);
-        }
-
-        public async Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto,
-        CancellationToken cancellationToken)
-        {
-            var invoice = await _invoiceRepository.GetCartOfUser
-                (discountCodeRequestDto.UserId);
-
-            var discountResponseDto = await SendDiscountCodeAsync(discountCodeRequestDto);
-            if (invoice != null)
-            {
-                ApplyDiscountCode(discountResponseDto, invoice.Id);
-
-                invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
-                _invoiceRepository.UpdateInvoice(invoice);
-
-                // TODO: Discount not saving
-                await _invoiceRepository.SaveChangesAsync(cancellationToken);
-            }
         }
     }
 }
