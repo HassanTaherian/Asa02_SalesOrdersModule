@@ -22,14 +22,14 @@ namespace Asa02_SalesOrdersModule.Controllers
         [HttpPost]
         public async Task AddProduct(AddProductRequestDto addProductRequestDto)
         {
-            await _productService.AddCart(addProductRequestDto, InvoiceState.CartState, CancellationToken.None);
+            await _productService.AddCart(addProductRequestDto, InvoiceState.CartState);
         }
 
         // PATCH: CartController/Update
         [HttpPatch]
         public async Task UpdateProduct(UpdateQuantityRequestDto updateQuantityRequestDto)
         {
-            await _productService.UpdateQuantity(updateQuantityRequestDto, CancellationToken.None);
+            await _productService.UpdateQuantity(updateQuantityRequestDto);
         }
 
         // DELETE: CartController/Delete

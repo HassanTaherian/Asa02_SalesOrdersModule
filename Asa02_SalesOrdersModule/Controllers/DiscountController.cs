@@ -16,10 +16,10 @@ namespace Asa02_SalesOrdersModule.Controllers
 
         [HttpPatch]
         public async Task<IActionResult> AddDiscountCode([FromBody]
-            DiscountCodeRequestDto discountCodeRequestDto, CancellationToken cancellationToken)
+            DiscountCodeRequestDto discountCodeRequestDto)
         {
             await _discountService.SetDiscountCodeAsync
-                (discountCodeRequestDto, cancellationToken);
+                (discountCodeRequestDto);
             return Ok("Successful");
         }
     }

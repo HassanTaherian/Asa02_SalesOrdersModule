@@ -90,8 +90,7 @@ namespace Services.Services
             return invoice.InvoiceItems.Where(item => item.IsDeleted == false).Sum(item => item.Price * item.Quantity);
         }
 
-        public async Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto,
-            CancellationToken cancellationToken)
+        public async Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
         {
             var invoice = await _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
@@ -102,10 +101,8 @@ namespace Services.Services
             invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
             _invoiceRepository.UpdateInvoice(invoice);
             // TODO: Discount not saving
+
             await _invoiceRepository.SaveChangesAsync();
-                // TODO: Discount not saving
-                await _invoiceRepository.SaveChangesAsync(cancellationToken);
-            }
         }
     }
 }

@@ -9,15 +9,12 @@ namespace Services.Abstractions
             (ProductToSecondCartResponseDto productToSecondCartResponseDto);
 
         Task SecondCartToCart
-        (ProductToSecondCartRequestDto productToSecondCartRequestDto
-            , CancellationToken cancellationToken);
+            (ProductToSecondCartRequestDto productToSecondCartRequestDto);
 
         Task CartToSecondCart
-        (ProductToSecondCartRequestDto productToSecondCartRequestDto
-            , CancellationToken cancellationToken);
+            (ProductToSecondCartRequestDto productToSecondCartRequestDto);
 
         Task DeleteItemFromTheSecondList
-        (ProductToSecondCartRequestDto productToSecondCartRequestDto
-            , CancellationToken cancellationToken);
+            (ProductToSecondCartRequestDto productToSecondCartRequestDto);
     }
 }

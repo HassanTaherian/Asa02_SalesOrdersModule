@@ -40,8 +40,7 @@ namespace Services.Services
             return items;
         }
 
-        public async Task<string> SerializeRecommendationRequestDto(
-            RecommendationRequestDto recommendationRequestDto)
+        public async Task<string> SerializeRecommendationRequestDto(RecommendationRequestDto recommendationRequestDto)
         {
             var mapItem = new ProductRecommendRequestDto()
             {

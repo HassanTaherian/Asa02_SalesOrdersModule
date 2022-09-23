@@ -18,7 +18,7 @@ namespace Services.Services
             _invoiceRepository = invoiceRepository;
         }
 
-        public async Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState, CancellationToken cancellationToken)
+        public async Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState)
         {
             var item = new InvoiceItem
             {
@@ -49,7 +49,7 @@ namespace Services.Services
             await _invoiceRepository.SaveChangesAsync();
         }
 
-        public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto, CancellationToken cancellationToken)
+        public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto)
         {
             var invoice = await _invoiceRepository.GetCartOfUser(updateQuantityRequestDto.UserId);
             foreach (var invoiceItem in invoice.InvoiceItems)

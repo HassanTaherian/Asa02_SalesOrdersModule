@@ -18,8 +18,7 @@ namespace Asa02_SalesOrdersModule.Controllers
         public async Task<IActionResult> AddAddressCode(
             [FromBody] AddressInvoiceDataDto addressInvoiceDataDto)
         {
-            await _addressService.SetAddressIdAsync
-                (addressInvoiceDataDto, CancellationToken.None);
+            await _addressService.SetAddressIdAsync(addressInvoiceDataDto);
             return Ok();
         }
     }

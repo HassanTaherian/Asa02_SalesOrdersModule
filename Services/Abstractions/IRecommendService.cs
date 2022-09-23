@@ -10,9 +10,11 @@ namespace Services.Abstractions
 
         Task<string> SerializeRecommendationRequestDto(RecommendationRequestDto recommendationRequestDto);
 
-        public ICollection<ProductRecommendResponseDto>? DeserializeRecommendationRequestDto(string productResponseJson);
+        public ICollection<ProductRecommendResponseDto>?
+            DeserializeRecommendationRequestDto(string productResponseJson);
 
-        public RecommendationResponseDto GetInvoiceItemsOfUserFromDatabase(RecommendationRequestDto recommendationRequestDto);
+        public RecommendationResponseDto GetInvoiceItemsOfUserFromDatabase(
+            RecommendationRequestDto recommendationRequestDto);
 
         public IEnumerable<Invoice?> GetOrderAndReturnInvoiceOfUser(RecommendationRequestDto recommendationRequestDto);
 

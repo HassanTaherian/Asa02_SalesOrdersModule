@@ -17,39 +17,34 @@ namespace Asa02_SalesOrdersModule.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable?> GetSecondCartItems([FromRoute]
-            ProductToSecondCartResponseDto productToSecondCartResponseDto)
+        public async Task<IEnumerable?> GetSecondCartItems(
+            [FromRoute] ProductToSecondCartResponseDto productToSecondCartResponseDto)
         {
             return await _secondCardService.GetSecondCartItems(productToSecondCartResponseDto);
         }
 
         [HttpPatch]
         public async Task<IActionResult> PutItemInTheSecondCart(
-            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto
-            , CancellationToken cancellationToken)
+            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
-            await _secondCardService.CartToSecondCart
-                (productToSecondCardRequestDto, cancellationToken);
+            await _secondCardService.CartToSecondCart(productToSecondCardRequestDto);
             return Ok("Successful");
         }
 
         [HttpPatch]
         public async Task<IActionResult> BackItemToTheCart(
-            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto
-            , CancellationToken cancellationToken)
+            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             await _secondCardService.SecondCartToCart
-                (productToSecondCardRequestDto, cancellationToken);
+                (productToSecondCardRequestDto);
             return Ok("Successful");
         }
 
         [HttpDelete]
         public async Task DeleteItemFromSecondList(
-            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto
-            , CancellationToken cancellationToken)
+            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
-            await _secondCardService.DeleteItemFromTheSecondList
-                (productToSecondCardRequestDto, cancellationToken);
+            await _secondCardService.DeleteItemFromTheSecondList(productToSecondCardRequestDto);
         }
     }
 }

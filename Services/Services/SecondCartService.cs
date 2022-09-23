@@ -22,18 +22,16 @@ namespace Services.Services
         }
 
         public async Task CartToSecondCart
-        (ProductToSecondCartRequestDto productToSecondCardRequestDto,
-            CancellationToken cancellationToken)
+        (ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             await InvoiceRepository.FromCartToTheSecondCart
             (productToSecondCardRequestDto.InvoiceId,
                 productToSecondCardRequestDto.ProductId);
-            await InvoiceRepository.SaveChangesAsync(cancellationToken);
+            await InvoiceRepository.SaveChangesAsync();
         }
 
         public async Task SecondCartToCart
-        (ProductToSecondCartRequestDto productToSecondCardRequestDto,
-            CancellationToken cancellationToken)
+        (ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             await InvoiceRepository.FromSecondCartToTheCart
             (productToSecondCardRequestDto.InvoiceId,
@@ -42,8 +40,7 @@ namespace Services.Services
         }
 
         public async Task DeleteItemFromTheSecondList
-        (ProductToSecondCartRequestDto productToSecondCartRequestDto,
-            CancellationToken cancellationToken)
+        (ProductToSecondCartRequestDto productToSecondCartRequestDto)
         {
             await InvoiceRepository.DeleteItemFromTheSecondCart
             (productToSecondCartRequestDto.InvoiceId,
