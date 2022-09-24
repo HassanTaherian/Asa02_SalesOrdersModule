@@ -1,6 +1,7 @@
 ﻿using Contracts.Discount;
 using Contracts.UI;
 using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Repositories;
 using Services.Abstractions;
 using Services.External;
@@ -20,7 +21,7 @@ namespace Services.Services
         }
 
 
-        public async Task<DiscountResponseDto> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
+        private async Task<DiscountResponseDto?> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
         {
             var discountRequestDto = await MapInvoiceToDiscountRequestDto(discountCodeRequestDto);
 
@@ -31,9 +32,19 @@ namespace Services.Services
             return discountResponseDto;
         }
 
-        public async Task ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId)
+        private async Task ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId)
         {
             var invoice = await _invoiceRepository.GetInvoiceById(invoiceId);
+
+            if (invoice is null)
+            {
+                throw new InvoiceNotFoundException(invoiceId);
+            }
+
+            if (discountResponseDto.Products is null)
+            {
+                throw new NoProductsFoundException();
+            }
 
             foreach (var discountProductResponseDto in discountResponseDto.Products)
             {
@@ -52,7 +63,8 @@ namespace Services.Services
         {
             var invoice = await _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
-
+            if (invoice is null)
+                throw new InvoiceNotFoundException(discountCodeRequestDto.UserId);
 
             var discountRequestDto = new DiscountRequestDto()
             {
@@ -95,12 +107,24 @@ namespace Services.Services
             var invoice = await _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
 
+            // Todo: Duplicates in all of this class
+            if (invoice is null)
+            {
+                throw new InvoiceNotFoundException(discountCodeRequestDto.UserId);
+            }
+
             var discountResponseDto = await SendDiscountCodeAsync(discountCodeRequestDto);
+
+            // Todo: Create Custom Exception for failure of other APIs
+            if (discountResponseDto is null)
+            {
+                throw new Exception("Discount Module is Not Responding...");
+            }
+
             await ApplyDiscountCode(discountResponseDto, invoice.Id);
 
             invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
             _invoiceRepository.UpdateInvoice(invoice);
-            // TODO: Discount not saving
 
             await _invoiceRepository.SaveChangesAsync();
         }

@@ -1,4 +1,5 @@
 ﻿using Contracts.UI;
+using Domain.Exceptions;
 using Domain.Repositories;
 using Services.Abstractions;
 
@@ -18,14 +19,13 @@ namespace Services.Services
         {
             var invoice = await _invoiceRepository.GetCartOfUser
                 (addressInvoiceDataDto.UserId);
-            if (invoice != null)
-            {
-                {
-                    invoice.AddressId = addressInvoiceDataDto.AddressId;
-                    _invoiceRepository.UpdateInvoice(invoice);
-                    await _invoiceRepository.SaveChangesAsync();
-                }
-            }
+
+            if (invoice is null)
+                throw new InvoiceNotFoundException(addressInvoiceDataDto.UserId);
+
+            invoice.AddressId = addressInvoiceDataDto.AddressId;
+            _invoiceRepository.UpdateInvoice(invoice);
+            await _invoiceRepository.SaveChangesAsync();
         }
     }
 }
