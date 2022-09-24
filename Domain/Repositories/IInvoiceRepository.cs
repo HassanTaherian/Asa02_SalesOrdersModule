@@ -10,7 +10,7 @@ namespace Domain.Repositories
 
         IEnumerable<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState);
 
-        Task<Invoice?> GetInvoiceById(long id);
+        Task<Invoice> GetInvoiceById(long id);
 
         Task<Invoice> GetCartOfUser(int userId);
 
@@ -22,7 +22,7 @@ namespace Domain.Repositories
 
         Task<bool> ChangeInvoiceState(int userId, InvoiceState newState);
 
-        Task<InvoiceItem?> GetInvoiceItem(long invoiceId, int productId);
+        Task<InvoiceItem> GetInvoiceItem(long invoiceId, int productId);
 
         Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
 

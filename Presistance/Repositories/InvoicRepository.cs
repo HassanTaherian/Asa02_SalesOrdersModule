@@ -19,9 +19,18 @@ namespace Persistence.Repositories
 
         public IEnumerable<Invoice?> GetInvoices() => _dbContext.Invoices;
 
-        public async Task<Invoice?> GetInvoiceById(long id)
-            => await _dbContext.Invoices.Include(invoice => invoice.InvoiceItems)
+        public async Task<Invoice> GetInvoiceById(long id)
+        {
+            var invoice = await _dbContext.Invoices.Include(invoice => invoice.InvoiceItems)
                 .SingleAsync(invoice => invoice.Id == id);
+
+            if (invoice is null)
+            {
+                throw new InvoiceNotFoundException(id);
+            }
+
+            return invoice;
+        }
 
         public async Task<Invoice> GetCartOfUser(int userId)
         {
@@ -87,10 +96,16 @@ namespace Persistence.Repositories
             return true;
         }
 
-        public async Task<InvoiceItem?> GetInvoiceItem(long invoiceId, int productId)
+        public async Task<InvoiceItem> GetInvoiceItem(long invoiceId, int productId)
         {
             var invoice = await GetInvoiceById(invoiceId);
             var invoiceItem = invoice.InvoiceItems.Single(invoiceItem => invoiceItem.ProductId == productId);
+
+            if (invoiceItem is null)
+            {
+                throw new InvoiceItemNotFoundException(invoiceId, productId);
+            }
+
             return invoiceItem;
         }
 

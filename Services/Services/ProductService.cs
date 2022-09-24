@@ -29,7 +29,7 @@ namespace Services.Services
 
             var invoice = await _invoiceRepository.GetCartOfUser(addProductRequestDto.UserId);
 
-            if (invoice == null)
+            if (invoice is null)
             {
                 var newInvoice = new Invoice
                 {

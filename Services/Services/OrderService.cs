@@ -3,6 +3,7 @@ using Contracts.Product;
 using Contracts.UI;
 using Contracts.UI.Checkout;
 using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Services.Abstractions;
@@ -36,10 +37,20 @@ namespace Services.Services
             return result;
         }
 
-        public async Task<bool> Returning(ReturningRequestDto returningRequestDto)
+        public async Task Returning(ReturningRequestDto returningRequestDto)
         {
             var invoice = await _invoiceRepository.GetInvoiceById(returningRequestDto.InvoiceId);
+
+            switch (invoice.State)
+            {
+                case InvoiceState.ReturnState:
+                    throw new AlreadyReturnedException(returningRequestDto.InvoiceId);
+                case InvoiceState.CartState:
+                    throw new InvoiceIsInCartStateException(returningRequestDto.InvoiceId);
+            }
+
             var invoiceItems = new List<InvoiceItem>();
+
             foreach (var id in returningRequestDto.ProductIds)
             {
                 var invoiceItem = await _invoiceRepository.GetInvoiceItem(returningRequestDto.InvoiceId, id);
@@ -55,9 +66,8 @@ namespace Services.Services
 
             _invoiceRepository.UpdateInvoice(invoice);
 
-            var result = await _invoiceRepository.ChangeInvoiceState(invoice.UserId, InvoiceState.OrderState);
+            await _invoiceRepository.ChangeInvoiceState(invoice.UserId, InvoiceState.OrderState);
             await _invoiceRepository.SaveChangesAsync();
-            return true;
         }
 
         public async Task<bool> UpdateCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)
