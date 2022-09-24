@@ -26,6 +26,11 @@ namespace Services.Services
         {
             var cart = await _invoiceRepository.GetCartOfUser(dto.UserId);
 
+            if (cart.AddressId is null)
+            {
+                throw new AddressNotSpecifiedException(cart.UserId);
+            }
+
 
             await UpdateCountingOfProduct(cart.InvoiceItems, ProductCountingState.ShopState);
             await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
