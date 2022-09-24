@@ -1,4 +1,6 @@
+using Asa02_SalesOrdersModule.Extensions;
 using Domain.Repositories;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
 using Services.Abstractions;
@@ -35,12 +37,10 @@ builder.Services.AddSingleton<IHttpProvider, HttpProvider>();
 
 var app = builder.Build();
 
+// app.UseMiddleware<ExceptionHandlerMiddleware>();
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.ConfigureExceptionHandler(app.Environment);
 
 app.UseHttpsRedirection();
 
