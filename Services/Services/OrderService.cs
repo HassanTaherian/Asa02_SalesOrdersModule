@@ -31,6 +31,11 @@ namespace Services.Services
                 throw new AddressNotSpecifiedException(cart.UserId);
             }
 
+            if (!CartHasItem(cart))
+            {
+                throw new EmptyCartException(cart.Id);
+            }
+
             var notDeletedItems = await _invoiceRepository.GetNotDeleteItems(cart.Id);
 
             await UpdateCountingOfProduct(notDeletedItems, ProductCountingState.ShopState);
@@ -76,6 +81,7 @@ namespace Services.Services
             await _invoiceRepository.SaveChangesAsync();
         }
 
+        // Todo: Make Private
         public async Task<bool> UpdateCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)
         {
             var countingDtos = MapInvoiceConfig(items, state);
@@ -85,6 +91,7 @@ namespace Services.Services
             return true;
         }
 
+        // Todo: Make Private
         public async Task<bool> SendInvoiceToMarketing(Invoice invoice, InvoiceState state)
         {
             var marketingInvoiceRequest = new MarketingInvoiceRequest
@@ -101,6 +108,7 @@ namespace Services.Services
             return true;
         }
 
+        // Todo: Make Private
         private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig(IEnumerable<InvoiceItem> invoiceItems,
             ProductCountingState state)
         {
@@ -118,6 +126,12 @@ namespace Services.Services
             }
 
             return countingDtos;
+        }
+
+        // Todo: Check this after merging with CartService
+        private bool CartHasItem(Invoice cart)
+        {
+            return cart.InvoiceItems.Any(invoiceItem => invoiceItem.IsDeleted == false);
         }
     }
 }
