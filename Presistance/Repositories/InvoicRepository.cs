@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -22,11 +23,17 @@ namespace Persistence.Repositories
             => await _dbContext.Invoices.Include(invoice => invoice.InvoiceItems)
                 .SingleAsync(invoice => invoice.Id == id);
 
-        public async Task<Invoice?> GetCartOfUser(int userId)
+        public async Task<Invoice> GetCartOfUser(int userId)
         {
             var userInvoice = await _dbContext.Invoices
                 .Where(invoice => invoice.UserId == userId && invoice.State
                     == InvoiceState.CartState).Include(invoice => invoice.InvoiceItems).FirstOrDefaultAsync();
+
+            if (userInvoice is null)
+            {
+                throw new CartNotFoundException(userId);
+            }
+
             return userInvoice;
         }
 

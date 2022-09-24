@@ -19,29 +19,15 @@ namespace Asa02_SalesOrdersModule.Controllers
         [HttpPost, Route("Checkout")]
         public async Task<IActionResult> Checkout(CheckoutRequestDto checkout)
         {
-            var result = await _orderService.Checkout(checkout);
-
-            if (result)
-            {
-                return Ok();
-            }
-
-            // Todo: Return 404 in case of error
-            return NotFound();
+            await _orderService.Checkout(checkout);
+            return Ok();
         }
 
         [HttpPost, Route("Returning")]
         public async Task<IActionResult> Returning(ReturningRequestDto returningRequestDto)
         {
-            var result = await _orderService.Returning(returningRequestDto);
-
-            if (result)
-            {
-                return Ok();
-            }
-
-            // Todo: Return 404 in case of error
-            return NotFound();
+            await _orderService.Returning(returningRequestDto);
+            return Ok();
         }
     }
 }

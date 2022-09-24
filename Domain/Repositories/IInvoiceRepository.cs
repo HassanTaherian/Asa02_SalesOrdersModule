@@ -12,7 +12,7 @@ namespace Domain.Repositories
 
         Task<Invoice?> GetInvoiceById(long id);
 
-        Task<Invoice?> GetCartOfUser(int userId);
+        Task<Invoice> GetCartOfUser(int userId);
 
         Task<Invoice> InsertInvoice(Invoice invoice);
 

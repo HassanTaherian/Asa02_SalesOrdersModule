@@ -25,10 +25,6 @@ namespace Services.Services
         {
             var cart = await _invoiceRepository.GetCartOfUser(dto.UserId);
 
-            if (cart is null)
-            {
-                return false;
-            }
 
             await UpdateCountingOfProduct(cart.InvoiceItems, ProductCountingState.ShopState);
             await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
