@@ -1,6 +1,7 @@
 ﻿using Contracts.Product;
 using Contracts.UI.Recommendation;
 using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Services.Abstractions;
@@ -19,88 +20,92 @@ namespace Services.Services
             _httpProvider = httpProvider;
         }
 
-        public async Task<RecommendationResponseDto> Recommended(RecommendationRequestDto recommendationRequestDto)
+        public async Task<List<ProductRecommendDto>> Recommended(RecommendationRequestDto recommendationRequestDto)
+        {
+            var items = FindRelatedProducts(recommendationRequestDto);
+            if (items == null)
+                throw new RelatedItemNotFoundException(recommendationRequestDto.ProductId);
+
+            return await items;
+        }
+
+        private async Task<List<ProductRecommendDto?>> FindRelatedProducts(
+            RecommendationRequestDto recommendationRequestDto)
+        {
+            var relatedProductsFromModule = GetRelatedProductFromProductmodule(recommendationRequestDto);
+
+            var productItemsFromDatabase = GetInvoiceItemsOfUserFromDatabase(recommendationRequestDto);
+
+
+            var recommendedItems = await Task.WhenAll(productItemsFromDatabase, relatedProductsFromModule);
+            var concatItems = recommendedItems.SelectMany(products => products).ToList();
+
+            return concatItems.Distinct().ToList();
+        }
+
+        private async Task<List<ProductRecommendDto?>> GetRelatedProductFromProductmodule(
+            RecommendationRequestDto recommendationRequestDto)
         {
             var productsResponse = await SerializeRecommendationRequestDto(recommendationRequestDto);
 
-            var relatedProductItems = DeserializeRecommendationRequestDto(productsResponse);
-
-            var productItemsFromDatabse = GetInvoiceItemsOfUserFromDatabase(recommendationRequestDto).ProductIds;
-
-            var recommendationItemsFromDatabase = new List<int>(productItemsFromDatabse);
-
-            IEnumerable<int> responseItems;
-
-            var relatedProducs = relatedProductItems.Select(item => item.ProductId).ToList();
-
-            responseItems = relatedProducs.Concat(recommendationItemsFromDatabase);
-
-            var items = new RecommendationResponseDto { ProductIds = responseItems };
-
-            return items;
+            return DeserializeRecommendationRequestDto(productsResponse);
         }
 
-        public async Task<string> SerializeRecommendationRequestDto(RecommendationRequestDto recommendationRequestDto)
+        private async Task<string> SerializeRecommendationRequestDto(
+            RecommendationRequestDto recommendationRequestDto)
         {
-            var mapItem = new ProductRecommendRequestDto()
+            var mapItem = new ProductRecommendDto()
             {
                 ProductId = recommendationRequestDto.ProductId
             };
 
-            var jsonBridge = new JsonBridge<ProductRecommendRequestDto, ProductRecommendResponseDto>();
+            var jsonBridge = new JsonBridge<ProductRecommendDto, ProductRecommendDto>();
             var json = jsonBridge.Serialize(mapItem);
             var productResponse =
                 await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/Recommendation", json);
             return productResponse;
         }
 
-        public ICollection<ProductRecommendResponseDto>? DeserializeRecommendationRequestDto(string productResponseJson)
+        private List<ProductRecommendDto>? DeserializeRecommendationRequestDto(string productResponseJson)
         {
-            var jsonBridge = new JsonBridge<ProductRecommendRequestDto, ProductRecommendResponseDto>();
-            var productItems = jsonBridge.DeserializeList(productResponseJson);
-
-            return productItems;
+            var jsonBridge = new JsonBridge<ProductRecommendDto, ProductRecommendDto>();
+            return jsonBridge.DeserializeList(productResponseJson);
         }
 
-        public RecommendationResponseDto GetInvoiceItemsOfUserFromDatabase(
+        private async Task<List<ProductRecommendDto?>> GetInvoiceItemsOfUserFromDatabase(
             RecommendationRequestDto recommendationRequestDto)
         {
-            var invoices = GetOrderAndReturnInvoiceOfUser(recommendationRequestDto);
-            var recommendationResponseDto = GetIsDeletedProductItemsOfUser(invoices);
-            return recommendationResponseDto;
+            var invoices = GetOrderAndReturnInvoiceOfUser(recommendationRequestDto.UserId);
+
+            return await GetIsDeletedProductItemsOfUser(invoices, recommendationRequestDto.ProductId);
         }
 
-        public IEnumerable<Invoice?> GetOrderAndReturnInvoiceOfUser(
-            RecommendationRequestDto recommendationRequestDto)
+        private List<Invoice?> GetOrderAndReturnInvoiceOfUser(int userId)
         {
             var orderInvoices =
-                _invoiceRepository.GetInvoiceByState(recommendationRequestDto.UserId, InvoiceState.OrderState);
+                _invoiceRepository.GetInvoiceByState(userId, InvoiceState.OrderState);
             var returnInvoices =
-                _invoiceRepository.GetInvoiceByState(recommendationRequestDto.UserId, InvoiceState.ReturnState);
+                _invoiceRepository.GetInvoiceByState(userId, InvoiceState.ReturnState);
 
-            var invoices = orderInvoices.Concat(returnInvoices);
+            var invoices = orderInvoices.Concat(returnInvoices).ToList();
 
             return invoices;
         }
 
-        public RecommendationResponseDto GetIsDeletedProductItemsOfUser(
-            IEnumerable<Invoice?> invoices)
+        private Task<List<ProductRecommendDto?>> GetIsDeletedProductItemsOfUser(List<Invoice?> invoices, int productId)
         {
-            var addItems = new List<int>();
-
-            foreach (var invoice in invoices)
+            var addItems = new List<ProductRecommendDto?>();
+            var productItems = new ProductRecommendDto();
+            foreach (var invoiceItem in from invoice in invoices
+                     from invoiceItem in invoice.InvoiceItems
+                     where invoiceItem.IsDeleted && invoiceItem.ProductId != productId
+                     select invoiceItem)
             {
-                foreach (var invoiceItem in invoice.InvoiceItems)
-                {
-                    if (invoiceItem.IsDeleted == true)
-                    {
-                        addItems.Add(invoiceItem.ProductId);
-                    }
-                }
+                productItems.ProductId = invoiceItem.ProductId;
+                addItems.Add(productItems);
             }
 
-            var items = new RecommendationResponseDto() { ProductIds = addItems };
-            return items;
+            return Task.FromResult(addItems);
         }
     }
 }

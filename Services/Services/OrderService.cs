@@ -68,7 +68,7 @@ namespace Services.Services
         {
             var countingDtos = MapInvoiceConfig(items, state);
             var jsonBridge = new JsonBridge<ProductUpdateCountingItemRequestDto, Boolean>();
-            var json = jsonBridge.SerializeList(countingDtos);
+            var json = jsonBridge.SerializeList(countingDtos.ToList());
             await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/UpdateProductCounting", json);
             return true;
         }

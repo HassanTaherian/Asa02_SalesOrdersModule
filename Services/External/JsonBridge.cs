@@ -9,19 +9,19 @@ namespace Services.External
             return JsonConvert.SerializeObject(item);
         }
 
-        public string SerializeList(IEnumerable<TIn> items)
+        public string SerializeList(List<TIn> items)
         {
             return JsonConvert.SerializeObject(items);
-        }
-
-        public ICollection<TOut>? DeserializeList(string json)
-        {
-            return JsonConvert.DeserializeObject<ICollection<TOut>>(json);
         }
 
         public TOut? Deserialize(string json)
         {
             return JsonConvert.DeserializeObject<TOut>(json);
+        }
+
+        public List<TOut>? DeserializeList(string json)
+        {
+            return JsonConvert.DeserializeObject<List<TOut>>(json);
         }
     }
 }
