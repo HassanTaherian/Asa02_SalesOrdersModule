@@ -28,6 +28,8 @@ namespace Domain.Repositories
 
         Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart);
 
+        Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId);
+
         //  Task GetProductItemById(int productId);
 
         Task FromCartToTheSecondCart(long invoiceId, int productId);

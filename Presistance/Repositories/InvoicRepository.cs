@@ -130,6 +130,15 @@ namespace Persistence.Repositories
                 (invoiceItem => invoiceItem.IsInSecondCard = isInSecondCart);
         }
 
+        public async Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId)
+        {
+            var invoice = await GetInvoiceById(invoiceId);
+
+            var invoiceItems = invoice.InvoiceItems.Where(item => item.IsDeleted == false);
+
+            return invoiceItems;
+        }
+
         public async Task FromCartToTheSecondCart(long invoiceId, int productId)
         {
             var invoice = await GetInvoiceById(invoiceId);

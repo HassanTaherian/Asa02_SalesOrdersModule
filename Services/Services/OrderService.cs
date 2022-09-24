@@ -31,8 +31,9 @@ namespace Services.Services
                 throw new AddressNotSpecifiedException(cart.UserId);
             }
 
+            var notDeletedItems = await _invoiceRepository.GetNotDeleteItems(cart.Id);
 
-            await UpdateCountingOfProduct(cart.InvoiceItems, ProductCountingState.ShopState);
+            await UpdateCountingOfProduct(notDeletedItems, ProductCountingState.ShopState);
             await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
 
             var result = await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
