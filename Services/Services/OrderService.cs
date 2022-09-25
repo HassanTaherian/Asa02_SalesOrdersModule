@@ -3,6 +3,7 @@ using Contracts.Product;
 using Contracts.UI;
 using Contracts.UI.Checkout;
 using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Services.Abstractions;
@@ -21,32 +22,53 @@ namespace Services.Services
             _httpProvider = httpProvider;
         }
 
-        public async Task<bool> Checkout(CheckoutRequestDto dto)
+        public async Task Checkout(CheckoutRequestDto dto)
         {
             var cart = await _invoiceRepository.GetCartOfUser(dto.UserId);
 
-            if (cart is null)
+            if (cart.AddressId is null)
             {
-                return false;
+                throw new AddressNotSpecifiedException(cart.UserId);
             }
 
-            await UpdateCountingOfProduct(cart.InvoiceItems, ProductCountingState.ShopState);
+            if (!CartHasItem(cart))
+            {
+                throw new EmptyCartException(cart.Id);
+            }
+
+            var notDeletedItems = await _invoiceRepository.GetNotDeleteItems(cart.Id);
+
+            await UpdateCountingOfProduct(notDeletedItems, ProductCountingState.ShopState);
             await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
 
-            var result = await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
+            await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
             cart.ShoppingDateTime = DateTime.Now;
             _invoiceRepository.UpdateInvoice(cart);
             await _invoiceRepository.SaveChangesAsync();
-            return result;
         }
 
-        public async Task<bool> Returning(ReturningRequestDto returningRequestDto)
+        public async Task Returning(ReturningRequestDto returningRequestDto)
         {
             var invoice = await _invoiceRepository.GetInvoiceById(returningRequestDto.InvoiceId);
+
+            switch (invoice.State)
+            {
+                case InvoiceState.ReturnState:
+                    throw new AlreadyReturnedException(returningRequestDto.InvoiceId);
+                case InvoiceState.CartState:
+                    throw new InvoiceIsInCartStateException(returningRequestDto.InvoiceId);
+            }
+
             var invoiceItems = new List<InvoiceItem>();
+
             foreach (var id in returningRequestDto.ProductIds)
             {
                 var invoiceItem = await _invoiceRepository.GetInvoiceItem(returningRequestDto.InvoiceId, id);
+
+                if (invoiceItem.IsDeleted)
+                {
+                    throw new InvoiceItemNotFoundException(invoice.Id, id);
+                }
                 invoiceItem.IsReturn = true;
                 invoiceItems.Add(invoiceItem);
             }
@@ -59,11 +81,10 @@ namespace Services.Services
 
             _invoiceRepository.UpdateInvoice(invoice);
 
-            var result = await _invoiceRepository.ChangeInvoiceState(invoice.UserId, InvoiceState.OrderState);
             await _invoiceRepository.SaveChangesAsync();
-            return true;
         }
 
+        // Todo: Make Private
         public async Task<bool> UpdateCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state)
         {
             var countingDtos = MapInvoiceConfig(items, state);
@@ -73,6 +94,7 @@ namespace Services.Services
             return true;
         }
 
+        // Todo: Make Private
         public async Task<bool> SendInvoiceToMarketing(Invoice invoice, InvoiceState state)
         {
             var marketingInvoiceRequest = new MarketingInvoiceRequest
@@ -89,6 +111,7 @@ namespace Services.Services
             return true;
         }
 
+        // Todo: Make Private
         private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig(IEnumerable<InvoiceItem> invoiceItems,
             ProductCountingState state)
         {
@@ -106,6 +129,12 @@ namespace Services.Services
             }
 
             return countingDtos;
+        }
+
+        // Todo: Check this after merging with CartService
+        private bool CartHasItem(Invoice cart)
+        {
+            return cart.InvoiceItems.Any(invoiceItem => invoiceItem.IsDeleted == false);
         }
     }
 }

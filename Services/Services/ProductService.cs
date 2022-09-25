@@ -20,16 +20,14 @@ namespace Services.Services
         {
             var item = MapDtoToInvoiceItem(addProductRequestDto);
 
-            var invoice = await _invoiceRepository.GetCartOfUser(addProductRequestDto.UserId);
-
-            if (invoice == null)
+            try
+            {
+                var invoice = await _invoiceRepository.GetCartOfUser(addProductRequestDto.UserId);
+                await AddItemToInvoice(invoice, item);
+            }
+            catch (CartNotFoundException)
             {
                 await AddItemToNewInvoice(addProductRequestDto.UserId, item);
-            }
-            else
-            {
-                // Todo: Not Working
-                await AddItemToInvoice(invoice, item);
             }
         }
 
@@ -46,20 +44,18 @@ namespace Services.Services
 
         private async Task AddItemToNewInvoice(int userId, InvoiceItem invoiceItem)
         {
-            if (invoiceItem.Quantity > 0)
-            {
-                var newInvoice = new Invoice
-                {
-                    UserId = userId,
-                    InvoiceItems = new List<InvoiceItem> { invoiceItem }
-                };
-                await _invoiceRepository.InsertInvoice(newInvoice);
-                await _invoiceRepository.SaveChangesAsync();
-            }
-            else
+            if (invoiceItem.Quantity <= 0)
             {
                 throw new QuantityOutOfRangeInputException();
             }
+
+            var newInvoice = new Invoice
+            {
+                UserId = userId,
+                InvoiceItems = new List<InvoiceItem> { invoiceItem }
+            };
+            await _invoiceRepository.InsertInvoice(newInvoice);
+            await _invoiceRepository.SaveChangesAsync();
         }
 
         private async Task AddItemToInvoice(Invoice invoice, InvoiceItem invoiceItem)
@@ -69,19 +65,20 @@ namespace Services.Services
                 throw new QuantityOutOfRangeInputException();
             }
 
-            var existedItem = await _invoiceRepository.GetInvoiceItem(invoice.Id, invoiceItem.ProductId);
 
-            if (existedItem is null)
+            try
             {
-                invoice.InvoiceItems.Add(invoiceItem);
-            }
-            else
-            {
+                var existedItem = await _invoiceRepository.GetInvoiceItem(invoice.Id, invoiceItem.ProductId);
                 existedItem.IsDeleted = false;
                 existedItem.Quantity = invoiceItem.Quantity;
                 existedItem.Price = invoiceItem.Price;
-                _invoiceRepository.UpdateInvoice(invoice);
             }
+            catch (InvoiceItemNotFoundException)
+            {
+                invoice.InvoiceItems.Add(invoiceItem);
+            }
+
+            _invoiceRepository.UpdateInvoice(invoice);
 
 
             await _invoiceRepository.SaveChangesAsync();
@@ -91,23 +88,13 @@ namespace Services.Services
         {
             var cart = await _invoiceRepository.GetCartOfUser(updateQuantityRequestDto.UserId);
 
-            if (!(updateQuantityRequestDto.Quantity > 0))
+            if (updateQuantityRequestDto.Quantity <= 0)
             {
                 throw new QuantityOutOfRangeInputException();
             }
 
-            if (cart is null)
-            {
-                throw new CartOfUserNotFoundException(updateQuantityRequestDto.UserId);
-            }
 
             var existed = await _invoiceRepository.GetInvoiceItem(cart.Id, updateQuantityRequestDto.ProductId);
-
-            if (existed is null)
-            {
-                throw new InvoiceItemCartOfUserNotFoundException(updateQuantityRequestDto.UserId,
-                    updateQuantityRequestDto.ProductId);
-            }
 
             existed.Quantity = updateQuantityRequestDto.Quantity;
             existed.IsDeleted = false;
@@ -120,19 +107,7 @@ namespace Services.Services
         {
             var cart = await _invoiceRepository.GetCartOfUser(deleteProductRequestDto.UserId);
 
-
-            if (cart is null)
-            {
-                throw new CartOfUserNotFoundException(deleteProductRequestDto.UserId);
-            }
-
             var existedItem = await _invoiceRepository.GetInvoiceItem(cart.UserId, deleteProductRequestDto.ProductId);
-
-            if (existedItem is null)
-            {
-                throw new InvoiceItemCartOfUserNotFoundException(deleteProductRequestDto.UserId,
-                    deleteProductRequestDto.ProductId);
-            }
 
             existedItem.IsDeleted = true;
             _invoiceRepository.UpdateInvoice(cart);

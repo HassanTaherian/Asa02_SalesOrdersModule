@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Domain.ValueObjects;
 
 namespace Domain.Repositories
@@ -10,23 +9,23 @@ namespace Domain.Repositories
 
         IEnumerable<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState);
 
-        Task<Invoice?> GetInvoiceById(long id);
+        Task<Invoice> GetInvoiceById(long id);
 
-        Task<Invoice?> GetCartOfUser(int userId);
+        Task<Invoice> GetCartOfUser(int userId);
 
         Task<Invoice> InsertInvoice(Invoice invoice);
 
         Invoice UpdateInvoice(Invoice invoice);
 
-        void DeleteInvoice(int id);
+        Task ChangeInvoiceState(int userId, InvoiceState newState);
 
-        Task<bool> ChangeInvoiceState(int userId, InvoiceState newState);
-
-        Task<InvoiceItem?> GetInvoiceItem(long invoiceId, int productId);
+        Task<InvoiceItem> GetInvoiceItem(long invoiceId, int productId);
 
         Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
 
         Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart);
+
+        Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId);
 
         //  Task GetProductItemById(int productId);
 
