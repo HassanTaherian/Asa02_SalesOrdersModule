@@ -28,6 +28,9 @@ namespace Domain.Repositories
         Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId);
 
         //  Task GetProductItemById(int productId);
+        Task<bool> UserHasAnyInvoice(int userId);
+
+        IList<int> MostFrequentShoppedProducts();
 
         Task FromCartToTheSecondCart(long invoiceId, int productId);
 

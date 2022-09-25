@@ -1,6 +1,6 @@
 ﻿namespace Contracts.Product
 {
-    public class ProductRecommendRequestDto
+    public class ProductRecommendDto
     {
         public int ProductId { get; set; }
     }
