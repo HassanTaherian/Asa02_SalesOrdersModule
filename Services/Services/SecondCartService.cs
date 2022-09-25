@@ -22,7 +22,7 @@ namespace Services.Services
         }
 
         public async Task CartToSecondCart
-        (ProductToSecondCartRequestDto productToSecondCardRequestDto)
+            (ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             await InvoiceRepository.FromCartToTheSecondCart
             (productToSecondCardRequestDto.InvoiceId,
@@ -31,7 +31,7 @@ namespace Services.Services
         }
 
         public async Task SecondCartToCart
-        (ProductToSecondCartRequestDto productToSecondCardRequestDto)
+            (ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             await InvoiceRepository.FromSecondCartToTheCart
             (productToSecondCardRequestDto.InvoiceId,
@@ -40,7 +40,7 @@ namespace Services.Services
         }
 
         public async Task DeleteItemFromTheSecondList
-        (ProductToSecondCartRequestDto productToSecondCartRequestDto)
+            (ProductToSecondCartRequestDto productToSecondCartRequestDto)
         {
             await InvoiceRepository.DeleteItemFromTheSecondCart
             (productToSecondCartRequestDto.InvoiceId,

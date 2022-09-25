@@ -4,6 +4,6 @@
     {
         public int TotalPrice { get; set; }
 
-        public ICollection<DiscountProductResponseDto>? Products { get; set; }
+        public ICollection<DiscountProductResponseDto> Products { get; set; }
     }
 }

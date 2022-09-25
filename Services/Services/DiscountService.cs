@@ -1,6 +1,7 @@
 ﻿using Contracts.Discount;
 using Contracts.UI;
 using Domain.Entities;
+using Domain.Exceptions;
 using Domain.Repositories;
 using Services.Abstractions;
 using Services.External;
@@ -20,7 +21,7 @@ namespace Services.Services
         }
 
 
-        public async Task<DiscountResponseDto> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
+        private async Task<DiscountResponseDto?> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
         {
             var discountRequestDto = await MapInvoiceToDiscountRequestDto(discountCodeRequestDto);
 
@@ -31,9 +32,14 @@ namespace Services.Services
             return discountResponseDto;
         }
 
-        public async Task ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId)
+        private async Task ApplyDiscountCode(DiscountResponseDto discountResponseDto, long invoiceId)
         {
             var invoice = await _invoiceRepository.GetInvoiceById(invoiceId);
+
+            if (invoice is null)
+            {
+                throw new InvoiceNotFoundException(invoiceId);
+            }
 
             foreach (var discountProductResponseDto in discountResponseDto.Products)
             {
@@ -41,9 +47,6 @@ namespace Services.Services
                 var invoiceItem = items.Single(item => item.ProductId == discountProductResponseDto.ProductId);
                 invoiceItem.NewPrice = discountProductResponseDto.UnitPrice;
             }
-
-            _invoiceRepository.UpdateInvoice(invoice);
-            await _invoiceRepository.SaveChangesAsync();
         }
 
 
@@ -52,7 +55,10 @@ namespace Services.Services
         {
             var invoice = await _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
-
+            if (invoice is null)
+            {
+                throw new InvoiceNotFoundException(discountCodeRequestDto.UserId);
+            }
 
             var discountRequestDto = new DiscountRequestDto()
             {
@@ -92,15 +98,27 @@ namespace Services.Services
 
         public async Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser
+            var cart = await _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
 
-            var discountResponseDto = await SendDiscountCodeAsync(discountCodeRequestDto);
-            await ApplyDiscountCode(discountResponseDto, invoice.Id);
+            // Todo: Duplicates in all of this class
+            if (cart is null)
+            {
+                throw new InvoiceNotFoundException(discountCodeRequestDto.UserId);
+            }
 
-            invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
-            _invoiceRepository.UpdateInvoice(invoice);
-            // TODO: Discount not saving
+            var discountResponseDto = await SendDiscountCodeAsync(discountCodeRequestDto);
+
+            // Todo: Create Custom Exception for failure of other APIs
+            if (discountResponseDto is null)
+            {
+                throw new Exception("Discount Module is Not Responding...");
+            }
+
+            await ApplyDiscountCode(discountResponseDto, cart.Id);
+
+            cart.DiscountCode = discountCodeRequestDto.DiscountCode;
+            _invoiceRepository.UpdateInvoice(cart);
 
             await _invoiceRepository.SaveChangesAsync();
         }
