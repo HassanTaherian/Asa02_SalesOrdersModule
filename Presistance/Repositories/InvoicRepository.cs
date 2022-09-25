@@ -148,7 +148,7 @@ namespace Persistence.Repositories
         public async Task FromSecondCartToTheCart(long invoiceId, int productId)
         {
             var invoice = await GetInvoiceById(invoiceId);
-            var cartItem = invoice?.InvoiceItems
+            var cartItem = invoice.InvoiceItems
                 .FirstOrDefault(item =>
                     item.ProductId == productId);
             if (cartItem != null)
@@ -161,7 +161,7 @@ namespace Persistence.Repositories
         {
             var invoice = await GetInvoiceById(invoiceId);
 
-            var cartItem = invoice?.InvoiceItems
+            var cartItem = invoice.InvoiceItems
                 .FirstOrDefault(cartItem =>
                     cartItem.ProductId == productId);
             if (cartItem != null)
