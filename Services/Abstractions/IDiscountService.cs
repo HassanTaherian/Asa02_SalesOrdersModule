@@ -1,6 +1,4 @@
-﻿using Contracts.Discount;
-using Contracts.UI;
-using Domain.Entities;
+﻿using Contracts.UI;
 
 namespace Services.Abstractions
 {

@@ -41,20 +41,12 @@ namespace Services.Services
                 throw new InvoiceNotFoundException(invoiceId);
             }
 
-            if (discountResponseDto.Products is null)
-            {
-                throw new NoProductsFoundException();
-            }
-
             foreach (var discountProductResponseDto in discountResponseDto.Products)
             {
                 var items = invoice.InvoiceItems;
                 var invoiceItem = items.Single(item => item.ProductId == discountProductResponseDto.ProductId);
                 invoiceItem.NewPrice = discountProductResponseDto.UnitPrice;
             }
-
-            _invoiceRepository.UpdateInvoice(invoice);
-            await _invoiceRepository.SaveChangesAsync();
         }
 
 
@@ -64,7 +56,9 @@ namespace Services.Services
             var invoice = await _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
             if (invoice is null)
+            {
                 throw new InvoiceNotFoundException(discountCodeRequestDto.UserId);
+            }
 
             var discountRequestDto = new DiscountRequestDto()
             {
@@ -104,11 +98,11 @@ namespace Services.Services
 
         public async Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser
+            var cart = await _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
 
             // Todo: Duplicates in all of this class
-            if (invoice is null)
+            if (cart is null)
             {
                 throw new InvoiceNotFoundException(discountCodeRequestDto.UserId);
             }
@@ -121,10 +115,10 @@ namespace Services.Services
                 throw new Exception("Discount Module is Not Responding...");
             }
 
-            await ApplyDiscountCode(discountResponseDto, invoice.Id);
+            await ApplyDiscountCode(discountResponseDto, cart.Id);
 
-            invoice.DiscountCode = discountCodeRequestDto.DiscountCode;
-            _invoiceRepository.UpdateInvoice(invoice);
+            cart.DiscountCode = discountCodeRequestDto.DiscountCode;
+            _invoiceRepository.UpdateInvoice(cart);
 
             await _invoiceRepository.SaveChangesAsync();
         }

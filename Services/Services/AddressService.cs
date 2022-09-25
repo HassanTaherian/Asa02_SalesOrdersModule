@@ -21,7 +21,9 @@ namespace Services.Services
                 (addressInvoiceDataDto.UserId);
 
             if (invoice is null)
+            {
                 throw new InvoiceNotFoundException(addressInvoiceDataDto.UserId);
+            }
 
             invoice.AddressId = addressInvoiceDataDto.AddressId;
             _invoiceRepository.UpdateInvoice(invoice);
