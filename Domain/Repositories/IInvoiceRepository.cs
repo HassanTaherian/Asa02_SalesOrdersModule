@@ -28,7 +28,9 @@ namespace Domain.Repositories
 
         Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart);
 
-        //  Task GetProductItemById(int productId);
+        Task<bool> UserHasAnyInvoice(int userId);
+
+        IList<int> MostFrequentShoppedProducts();
 
         Task FromCartToTheSecondCart(long invoiceId, int productId);
 

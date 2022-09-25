@@ -108,12 +108,30 @@ namespace Persistence.Repositories
                 (invoiceItem => invoiceItem.IsInSecondCard = isInSecondCart);
         }
 
+        public async Task<bool> UserHasAnyInvoice(int userId)
+        {
+            return await _dbContext.Invoices.AnyAsync(invoice =>
+                invoice.UserId == userId && invoice.State != InvoiceState.CartState);
+        }
+
+        public IList<int> MostFrequentShoppedProducts()
+        {
+            var products = (
+                        from item in _dbContext.InvoiceItems
+                        where !item.IsDeleted && !item.IsReturn
+                        group item by item.ProductId into productGroup
+                        orderby productGroup.Count() descending 
+                        select productGroup.Key
+            ).Take(5).ToList();
+
+            return products;
+        }
+
         public async Task FromCartToTheSecondCart(long invoiceId, int productId)
         {
             var invoice = await GetInvoiceById(invoiceId);
 
-            var cartItem = (invoice.InvoiceItems).
-                FirstOrDefault(item => item.ProductId == productId);
+            var cartItem = (invoice.InvoiceItems).FirstOrDefault(item => item.ProductId == productId);
             if (cartItem != null)
             {
                 cartItem.IsInSecondCard = true;

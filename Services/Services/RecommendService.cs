@@ -22,37 +22,45 @@ namespace Services.Services
 
         public async Task<List<ProductRecommendDto>> Recommended(RecommendationRequestDto recommendationRequestDto)
         {
-            var items = FindRelatedProducts(recommendationRequestDto);
-            if (items == null)
+            var items = await FindRelatedProducts(recommendationRequestDto);
+            if (items.Count == 0)
+            {
                 throw new RelatedItemNotFoundException(recommendationRequestDto.ProductId);
+            }
 
-            return await items;
+            return items;
         }
 
-        private async Task<List<ProductRecommendDto?>> FindRelatedProducts(
+        private async Task<List<ProductRecommendDto>> FindRelatedProducts(
             RecommendationRequestDto recommendationRequestDto)
         {
-            var relatedProductsFromModule = GetRelatedProductFromProductmodule(recommendationRequestDto);
+            var relatedProductsFromModule = await GetRelatedProductFromProductModule(recommendationRequestDto);
 
-            var productItemsFromDatabase = GetInvoiceItemsOfUserFromDatabase(recommendationRequestDto);
+            var productItemsFromDatabase = new List<ProductRecommendDto>();
 
+            if (await _invoiceRepository.UserHasAnyInvoice(recommendationRequestDto.UserId))
+            {
+                productItemsFromDatabase = await GetInvoiceItemsOfUserFromDatabase(recommendationRequestDto);
+            }
 
-            var recommendedItems = await Task.WhenAll(productItemsFromDatabase, relatedProductsFromModule);
-            var concatItems = recommendedItems.SelectMany(products => products).ToList();
+            var mostShoppedProducts = _invoiceRepository.MostFrequentShoppedProducts().Select(id => new ProductRecommendDto
+            {
+                ProductId = id
+            }).ToList();
 
-            return concatItems.Distinct().ToList();
+            var concatItems = relatedProductsFromModule.Concat(productItemsFromDatabase).Concat(mostShoppedProducts);
+
+            return concatItems.DistinctBy(product => product.ProductId).ToList();
         }
 
-        private async Task<List<ProductRecommendDto?>> GetRelatedProductFromProductmodule(
-            RecommendationRequestDto recommendationRequestDto)
+        private async Task<List<ProductRecommendDto>> GetRelatedProductFromProductModule(RecommendationRequestDto recommendationRequestDto)
         {
             var productsResponse = await SerializeRecommendationRequestDto(recommendationRequestDto);
 
             return DeserializeRecommendationRequestDto(productsResponse);
         }
 
-        private async Task<string> SerializeRecommendationRequestDto(
-            RecommendationRequestDto recommendationRequestDto)
+        private async Task<string> SerializeRecommendationRequestDto(RecommendationRequestDto recommendationRequestDto)
         {
             var mapItem = new ProductRecommendDto()
             {
@@ -66,21 +74,27 @@ namespace Services.Services
             return productResponse;
         }
 
-        private List<ProductRecommendDto>? DeserializeRecommendationRequestDto(string productResponseJson)
+        private List<ProductRecommendDto> DeserializeRecommendationRequestDto(string productResponseJson)
         {
             var jsonBridge = new JsonBridge<ProductRecommendDto, ProductRecommendDto>();
-            return jsonBridge.DeserializeList(productResponseJson);
+            var result = jsonBridge.DeserializeList(productResponseJson);
+
+            if (result is null)
+            {
+                throw new Exception("Network not responding!");
+            }
+
+            return result;
         }
 
-        private async Task<List<ProductRecommendDto?>> GetInvoiceItemsOfUserFromDatabase(
-            RecommendationRequestDto recommendationRequestDto)
+        private async Task<List<ProductRecommendDto>> GetInvoiceItemsOfUserFromDatabase(RecommendationRequestDto recommendationRequestDto)
         {
             var invoices = GetOrderAndReturnInvoiceOfUser(recommendationRequestDto.UserId);
 
             return await GetIsDeletedProductItemsOfUser(invoices, recommendationRequestDto.ProductId);
         }
 
-        private List<Invoice?> GetOrderAndReturnInvoiceOfUser(int userId)
+        private List<Invoice> GetOrderAndReturnInvoiceOfUser(int userId)
         {
             var orderInvoices =
                 _invoiceRepository.GetInvoiceByState(userId, InvoiceState.OrderState);
@@ -92,16 +106,18 @@ namespace Services.Services
             return invoices;
         }
 
-        private Task<List<ProductRecommendDto?>> GetIsDeletedProductItemsOfUser(List<Invoice?> invoices, int productId)
+        private Task<List<ProductRecommendDto>> GetIsDeletedProductItemsOfUser(List<Invoice> invoices, int productId)
         {
-            var addItems = new List<ProductRecommendDto?>();
-            var productItems = new ProductRecommendDto();
+            var addItems = new List<ProductRecommendDto>();
             foreach (var invoiceItem in from invoice in invoices
                      from invoiceItem in invoice.InvoiceItems
                      where invoiceItem.IsDeleted && invoiceItem.ProductId != productId
                      select invoiceItem)
             {
-                productItems.ProductId = invoiceItem.ProductId;
+                var productItems = new ProductRecommendDto
+                {
+                    ProductId = invoiceItem.ProductId
+                };
                 addItems.Add(productItems);
             }
 

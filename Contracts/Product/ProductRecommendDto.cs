@@ -1,4 +1,4 @@
-﻿namespace Contracts.UI.Recommendation
+﻿namespace Contracts.Product
 {
     public class ProductRecommendDto
     {
