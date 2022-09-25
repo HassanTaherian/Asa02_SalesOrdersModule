@@ -10,6 +10,7 @@ namespace Services.Services
     public class ProductService : IProductService
     {
         private readonly IInvoiceRepository _invoiceRepository;
+
         public ProductService(IInvoiceRepository invoiceRepository)
         {
             _invoiceRepository = invoiceRepository;
@@ -63,72 +64,78 @@ namespace Services.Services
 
         private async Task AddItemToInvoice(Invoice invoice, InvoiceItem invoiceItem)
         {
-            if (invoiceItem.Quantity > 0)
-            {
-                var flag = false;
-                foreach (var item in invoice.InvoiceItems)
-                {
-                    if (item.ProductId != invoiceItem.ProductId) continue;
-                    flag = true;
-                    item.IsDeleted = false;
-                    item.Quantity = invoiceItem.Quantity;
-                    _invoiceRepository.UpdateInvoice(invoice);
-                }
-
-                if (flag) invoice.InvoiceItems.Add(invoiceItem);
-                await _invoiceRepository.SaveChangesAsync();
-            }
-            else
+            if (invoiceItem.Quantity <= 0)
             {
                 throw new QuantityOutOfRangeInputException();
             }
+
+            var existedItem = await _invoiceRepository.GetInvoiceItem(invoice.Id, invoiceItem.ProductId);
+
+            if (existedItem is null)
+            {
+                invoice.InvoiceItems.Add(invoiceItem);
+            }
+            else
+            {
+                existedItem.IsDeleted = false;
+                existedItem.Quantity = invoiceItem.Quantity;
+                existedItem.Price = invoiceItem.Price;
+                _invoiceRepository.UpdateInvoice(invoice);
+            }
+
+
+            await _invoiceRepository.SaveChangesAsync();
         }
 
         public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser(updateQuantityRequestDto.UserId);
-            var flag = false;
+            var cart = await _invoiceRepository.GetCartOfUser(updateQuantityRequestDto.UserId);
 
-            if (!(updateQuantityRequestDto.Quantity > 0)) throw new QuantityOutOfRangeInputException();
-
-            if (invoice != null)
+            if (!(updateQuantityRequestDto.Quantity > 0))
             {
-                foreach (var invoiceItem in invoice.InvoiceItems)
-                {
-                    if (invoiceItem.ProductId != updateQuantityRequestDto.ProductId) continue;
-                    invoiceItem.Quantity = updateQuantityRequestDto.Quantity;
-                    invoiceItem.IsDeleted = false;
-                    flag = true;
-                }
-                if (flag)
-                    throw new InvoiceItemCartOfUserNotFoundException(updateQuantityRequestDto.UserId,
-                        updateQuantityRequestDto.ProductId);
-                _invoiceRepository.UpdateInvoice(invoice);
-                await _invoiceRepository.SaveChangesAsync();
+                throw new QuantityOutOfRangeInputException();
             }
-            else
+
+            if (cart is null)
             {
                 throw new CartOfUserNotFoundException(updateQuantityRequestDto.UserId);
             }
+
+            var existed = await _invoiceRepository.GetInvoiceItem(cart.Id, updateQuantityRequestDto.ProductId);
+
+            if (existed is null)
+            {
+                throw new InvoiceItemCartOfUserNotFoundException(updateQuantityRequestDto.UserId,
+                    updateQuantityRequestDto.ProductId);
+            }
+
+            existed.Quantity = updateQuantityRequestDto.Quantity;
+            existed.IsDeleted = false;
+
+            _invoiceRepository.UpdateInvoice(cart);
+            await _invoiceRepository.SaveChangesAsync();
         }
 
         public async Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser(deleteProductRequestDto.UserId);
-            if (invoice == null) throw new CartOfUserNotFoundException(deleteProductRequestDto.UserId);
-            var flag = false;
-            foreach (var invoiceItem in invoice.InvoiceItems)
+            var cart = await _invoiceRepository.GetCartOfUser(deleteProductRequestDto.UserId);
+
+
+            if (cart is null)
             {
-                if (invoiceItem.ProductId != deleteProductRequestDto.ProductId) continue;
-                invoiceItem.IsDeleted = true;
-                flag = true;
+                throw new CartOfUserNotFoundException(deleteProductRequestDto.UserId);
             }
 
-            if (flag == false)
+            var existedItem = await _invoiceRepository.GetInvoiceItem(cart.UserId, deleteProductRequestDto.ProductId);
+
+            if (existedItem is null)
+            {
                 throw new InvoiceItemCartOfUserNotFoundException(deleteProductRequestDto.UserId,
                     deleteProductRequestDto.ProductId);
+            }
 
-            _invoiceRepository.UpdateInvoice(invoice);
+            existedItem.IsDeleted = true;
+            _invoiceRepository.UpdateInvoice(cart);
             await _invoiceRepository.SaveChangesAsync();
         }
     }

@@ -83,7 +83,7 @@ namespace Persistence.Repositories
         public async Task<InvoiceItem?> GetInvoiceItem(long invoiceId, int productId)
         {
             var invoice = await GetInvoiceById(invoiceId);
-            var invoiceItem = invoice.InvoiceItems.Single(invoiceItem => invoiceItem.ProductId == productId);
+            var invoiceItem = invoice.InvoiceItems.SingleOrDefault(invoiceItem => invoiceItem.ProductId == productId);
             return invoiceItem;
         }
 
