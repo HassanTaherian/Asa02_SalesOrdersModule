@@ -43,8 +43,8 @@ namespace Persistence.Migrations
                     b.Property<DateTime?>("ShoppingDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("State")
-                        .HasColumnType("int");
+                    b.Property<byte>("State")
+                        .HasColumnType("tinyint");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

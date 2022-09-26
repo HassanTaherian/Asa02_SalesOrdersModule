@@ -4,7 +4,7 @@
 
 namespace Persistence.Migrations
 {
-    public partial class UpdateDatabaseName : Migration
+    public partial class DeployDemo : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

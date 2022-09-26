@@ -12,8 +12,8 @@ using Persistence.Repositories;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(RepositoryDbContext))]
-    [Migration("20220922165453_Returning")]
-    partial class Returning
+    [Migration("20220926084943_InitialDatabase")]
+    partial class InitialDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -45,8 +45,8 @@ namespace Persistence.Migrations
                     b.Property<DateTime?>("ShoppingDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("State")
-                        .HasColumnType("int");
+                    b.Property<byte>("State")
+                        .HasColumnType("tinyint");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

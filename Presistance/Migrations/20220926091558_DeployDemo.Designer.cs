@@ -12,8 +12,8 @@ using Persistence.Repositories;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(RepositoryDbContext))]
-    [Migration("20220921174823_AddSecondCart")]
-    partial class AddSecondCart
+    [Migration("20220926091558_DeployDemo")]
+    partial class DeployDemo
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -39,14 +39,17 @@ namespace Persistence.Migrations
                         .HasMaxLength(6)
                         .HasColumnType("nvarchar(6)");
 
+                    b.Property<DateTime?>("ReturnDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("ShoppingDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("State")
-                        .HasColumnType("int");
+                    b.Property<byte>("State")
+                        .HasColumnType("tinyint");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -86,9 +89,6 @@ namespace Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1);
-
-                    b.Property<DateTime?>("ReturnDateTime")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
