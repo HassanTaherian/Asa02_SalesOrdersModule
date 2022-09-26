@@ -1,6 +1,4 @@
-﻿using Domain.Entities;
-
-namespace Domain.Repositories
+﻿namespace Domain.Repositories
 {
     public interface IUnitOfWork
     {

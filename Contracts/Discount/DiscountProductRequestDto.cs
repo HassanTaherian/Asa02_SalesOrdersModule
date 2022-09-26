@@ -6,6 +6,7 @@
 
         public int Quantity { get; set; }
 
+        // Todo: Decimal
         public double UnitPrice { get; set; }
     }
 }

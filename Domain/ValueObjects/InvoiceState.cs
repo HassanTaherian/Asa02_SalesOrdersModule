@@ -1,6 +1,6 @@
 ﻿namespace Domain.ValueObjects
 {
-    public enum InvoiceState
+    public enum InvoiceState : byte
     {
         CartState,
         OrderState,

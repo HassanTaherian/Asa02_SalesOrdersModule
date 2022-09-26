@@ -1,6 +1,6 @@
 ﻿namespace Domain.ValueObjects
 {
-    public enum ProductCountingState
+    public enum ProductCountingState : byte
     {
         ShopState,
         ReturnState
