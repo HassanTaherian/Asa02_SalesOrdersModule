@@ -1,4 +1,7 @@
-﻿using Contracts.UI;
+﻿using System.Collections;
+using Contracts.UI;
+using Domain.Entities;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 
@@ -13,6 +16,15 @@ namespace Asa02_SalesOrdersModule.Controllers
         public SecondCartController(ISecondCartService secondCardService)
         {
             _secondCardService = secondCardService;
+        }
+
+        [HttpGet("{userId:int}")]
+        public async Task<IEnumerable> GetItemsInTheSecondCart(int userId)
+        {
+            var result = await _secondCardService.GetSecondCartItems(userId);
+            if (result is null)
+                throw new EmptySecondCartException(userId);
+            return result;
         }
 
         [HttpPatch]

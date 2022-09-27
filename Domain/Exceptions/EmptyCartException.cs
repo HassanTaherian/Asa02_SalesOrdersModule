@@ -2,7 +2,7 @@
 {
     public class EmptyCartException : BadRequestException
     {
-        public EmptyCartException(long invoiceId) : base($"Cart {invoiceId} is Empty!")
+        public EmptyCartException(int userId) : base($"Cart of user {userId} is Empty!")
         {
         }
     }

@@ -50,7 +50,7 @@ namespace Persistence.Repositories
         {
             var userInvoices = _dbContext.Invoices.Include(invoice => invoice.InvoiceItems)
                 .Where(invoice => invoice.UserId == userId &&
-                                  invoice.State == invoiceState);
+                                  invoice.State == invoiceState).ToList();
             return userInvoices;
         }
 
@@ -90,20 +90,11 @@ namespace Persistence.Repositories
             return invoiceItem;
         }
 
-        public async Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId)
-        {
-            var invoice = await GetCartOfUser(userId);
-
-            return invoice.InvoiceItems.Where
-                (invoiceItem => invoiceItem.IsInSecondCard = false);
-        }
-
-
-        public async Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart)
+        public async Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart,bool isDeleted)
         {
             var invoice = await GetCartOfUser(userId);
             return invoice.InvoiceItems.Where
-                (invoiceItem => invoiceItem.IsInSecondCard = isInSecondCart);
+                (invoiceItem => invoiceItem.IsInSecondCard == isInSecondCart && invoiceItem.IsDeleted==isDeleted);
         }
 
         public async Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId)
@@ -167,6 +158,7 @@ namespace Persistence.Repositories
             if (cartItem != null)
             {
                 cartItem.IsDeleted = true;
+                cartItem.IsInSecondCard = false;
             }
         }
 

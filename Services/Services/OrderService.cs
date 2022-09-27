@@ -33,7 +33,7 @@ namespace Services.Services
 
             if (!CartHasItem(cart))
             {
-                throw new EmptyCartException(cart.Id);
+                throw new EmptyCartException(dto.UserId);
             }
 
             var notDeletedItems = await _invoiceRepository.GetNotDeleteItems(cart.Id);

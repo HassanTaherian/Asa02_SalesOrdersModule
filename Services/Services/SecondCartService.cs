@@ -15,10 +15,10 @@ namespace Services.Services
         }
 
         public async Task<IEnumerable?> GetSecondCartItems
-            (ProductToSecondCartResponseDto productToSecondCartResponseDto)
+            (int userId)
         {
             return await InvoiceRepository.GetItemsOfCart
-                (productToSecondCartResponseDto.UserId, true);
+                (userId, true,false);
         }
 
         public async Task CartToSecondCart

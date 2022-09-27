@@ -94,7 +94,7 @@ namespace Services.Services
             return await GetIsDeletedProductItemsOfUser(invoices, recommendationRequestDto.ProductId);
         }
 
-        private List<Invoice> GetOrderAndReturnInvoiceOfUser(int userId)
+        private List<Invoice?> GetOrderAndReturnInvoiceOfUser(int userId)
         {
             var orderInvoices =
                 _invoiceRepository.GetInvoiceByState(userId, InvoiceState.OrderState);
@@ -106,7 +106,7 @@ namespace Services.Services
             return invoices;
         }
 
-        private Task<List<ProductRecommendDto>> GetIsDeletedProductItemsOfUser(List<Invoice> invoices, int productId)
+        private Task<List<ProductRecommendDto>> GetIsDeletedProductItemsOfUser(List<Invoice?> invoices, int productId)
         {
             var addItems = new List<ProductRecommendDto>();
             foreach (var invoiceItem in from invoice in invoices
