@@ -5,8 +5,7 @@ namespace Services.Abstractions
 {
     public interface ISecondCartService
     {
-        Task<IEnumerable?> GetSecondCartItems
-            (ProductToSecondCartResponseDto productToSecondCartResponseDto);
+        Task<IEnumerable?> GetSecondCartItems(int userId);
 
         Task SecondCartToCart
             (ProductToSecondCartRequestDto productToSecondCartRequestDto);
@@ -14,7 +13,7 @@ namespace Services.Abstractions
         Task CartToSecondCart
             (ProductToSecondCartRequestDto productToSecondCartRequestDto);
 
-        Task DeleteItemFromTheSecondList
+        Task DeleteItemFromTheSecondCart
             (ProductToSecondCartRequestDto productToSecondCartRequestDto);
     }
 }

@@ -21,9 +21,13 @@ namespace Domain.Repositories
 
         Task<InvoiceItem> GetInvoiceItem(long invoiceId, int productId);
 
-        Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
+        // Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId);
 
-        Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart);
+        Task<Invoice?> GetSecondCartOfUser(int userId);
+
+        Task<IEnumerable<InvoiceItem>> GetItemsOfSecondCart(int userId);
+
+        Task<InvoiceItem?> GetSecondCartItem(long invoiceId, int productId);
 
         Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId);
 
@@ -31,11 +35,5 @@ namespace Domain.Repositories
         Task<bool> UserHasAnyInvoice(int userId);
 
         IList<int> MostFrequentShoppedProducts();
-
-        Task FromCartToTheSecondCart(long invoiceId, int productId);
-
-        Task FromSecondCartToTheCart(long invoiceId, int productId);
-
-        Task DeleteItemFromTheSecondCart(long invoiceId, int productId);
     }
 }

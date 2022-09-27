@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Contracts.UI;
+using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Repositories;
 using Domain.ValueObjects;
@@ -9,12 +10,10 @@ namespace Persistence.Repositories
     public class InvoiceRepository : IInvoiceRepository
     {
         private readonly RepositoryDbContext _dbContext;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public InvoiceRepository(RepositoryDbContext dbContext, IUnitOfWork unitOfWork)
+        public InvoiceRepository(RepositoryDbContext dbContext)
         {
             _dbContext = dbContext;
-            _unitOfWork = unitOfWork;
         }
 
         public IEnumerable<Invoice?> GetInvoices() => _dbContext.Invoices;
@@ -68,7 +67,6 @@ namespace Persistence.Repositories
             return invoice;
         }
 
-
         public async Task ChangeInvoiceState(int userId, InvoiceState newState)
         {
             var invoice = await GetCartOfUser(userId);
@@ -90,21 +88,61 @@ namespace Persistence.Repositories
             return invoiceItem;
         }
 
-        public async Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId)
-        {
-            var invoice = await GetCartOfUser(userId);
+        //public async Task<IEnumerable<InvoiceItem>> GetItemsOfInvoice(int userId)
+        //{
+        //    var invoice = await GetCartOfUser(userId);
 
-            return invoice.InvoiceItems.Where
-                (invoiceItem => invoiceItem.IsInSecondCard = false);
+        //    return invoice.InvoiceItems.Where
+        //        (invoiceItem => invoiceItem.IsInSecondCard = false);
+        //}
+
+        public async Task<Invoice?> GetSecondCartOfUser(int userId)
+        {
+            var userInvoice = await _dbContext.Invoices
+                .Where(invoice => invoice.UserId == userId && invoice.State
+                    == InvoiceState.SecondCartState)
+                .Include(invoice => invoice.InvoiceItems).FirstOrDefaultAsync();
+
+            if (userInvoice is null)
+            {
+                throw new CartNotFoundException(userId);
+            }
+
+            return userInvoice;
         }
 
-
-        public async Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart)
+        public async Task<IEnumerable<InvoiceItem>> GetItemsOfSecondCart(int userId)
         {
-            var invoice = await GetCartOfUser(userId);
-            return invoice.InvoiceItems.Where
-                (invoiceItem => invoiceItem.IsInSecondCard = isInSecondCart);
+            var invoice = await GetSecondCartOfUser(userId);
+
+            if (invoice == null)
+            {
+                throw new InvoiceNotFoundException(userId);
+            }
+            return invoice.InvoiceItems;
         }
+
+        public async Task<InvoiceItem?> GetSecondCartItem(long invoiceId, int productId)
+        {
+            var invoice = await GetInvoiceById(invoiceId);
+
+            var invoiceItem = (invoice.InvoiceItems).SingleOrDefault
+                (item => item.ProductId == productId);
+
+            if (invoiceItem is null)
+            {
+                throw new InvoiceItemNotFoundException(invoiceId, productId);
+            }
+
+            return invoiceItem;
+        }
+
+        //public async Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart)
+        //{
+        //    var invoice = await GetCartOfUser(userId);
+        //    return invoice.InvoiceItems.Where
+        //        (invoiceItem => invoiceItem.IsInSecondCard == isInSecondCart);
+        //}
 
         public async Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId)
         {
@@ -127,52 +165,16 @@ namespace Persistence.Repositories
                         from item in _dbContext.InvoiceItems
                         where !item.IsDeleted && !item.IsReturn
                         group item by item.ProductId into productGroup
-                        orderby productGroup.Count() descending 
+                        orderby productGroup.Count() descending
                         select productGroup.Key
             ).Take(5).ToList();
 
             return products;
         }
 
-        public async Task FromCartToTheSecondCart(long invoiceId, int productId)
-        {
-            var invoice = await GetInvoiceById(invoiceId);
-
-            var cartItem = (invoice.InvoiceItems).FirstOrDefault(item => item.ProductId == productId);
-            if (cartItem != null)
-            {
-                cartItem.IsInSecondCard = true;
-            }
-        }
-
-        public async Task FromSecondCartToTheCart(long invoiceId, int productId)
-        {
-            var invoice = await GetInvoiceById(invoiceId);
-            var cartItem = invoice.InvoiceItems
-                .FirstOrDefault(item =>
-                    item.ProductId == productId);
-            if (cartItem != null)
-            {
-                cartItem.IsInSecondCard = false;
-            }
-        }
-
-        public async Task DeleteItemFromTheSecondCart(long invoiceId, int productId)
-        {
-            var invoice = await GetInvoiceById(invoiceId);
-
-            var cartItem = invoice.InvoiceItems
-                .FirstOrDefault(cartItem =>
-                    cartItem.ProductId == productId);
-            if (cartItem != null)
-            {
-                cartItem.IsDeleted = true;
-            }
-        }
-
         public int SaveChanges()
         {
-            var returnValue = _unitOfWork.SaveChanges();
+            var returnValue = _dbContext.SaveChanges();
             return returnValue;
         }
 

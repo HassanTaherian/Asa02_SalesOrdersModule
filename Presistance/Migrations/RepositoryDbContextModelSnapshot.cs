@@ -46,9 +46,6 @@ namespace Persistence.Migrations
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotlPrice")
-                        .HasColumnType("float");
-
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 

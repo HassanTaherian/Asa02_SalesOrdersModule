@@ -1,4 +1,7 @@
-﻿using Contracts.UI;
+﻿using System.Collections;
+using Contracts.UI;
+using Domain.Entities;
+using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 
@@ -15,6 +18,15 @@ namespace Asa02_SalesOrdersModule.Controllers
             _secondCardService = secondCardService;
         }
 
+        [HttpGet("{userId:int}")]
+        public async Task<IEnumerable> GetItemsInTheSecondCart(int userId)
+        {
+            var result = await _secondCardService.GetSecondCartItems(userId);
+            if (result is null)
+                throw new EmptySecondCartException(userId);
+            return result;
+        }
+
         [HttpPatch]
         public async Task<IActionResult> PutItemInTheSecondCart(
             [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
@@ -29,14 +41,14 @@ namespace Asa02_SalesOrdersModule.Controllers
         {
             await _secondCardService.SecondCartToCart
                 (productToSecondCardRequestDto);
-            return Ok("Successful");
+            return Ok();
         }
 
         [HttpDelete]
-        public async Task DeleteItemFromSecondList(
+        public async Task DeleteItemFromSecondCart(
             [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
-            await _secondCardService.DeleteItemFromTheSecondList(productToSecondCardRequestDto);
+            await _secondCardService.DeleteItemFromTheSecondCart(productToSecondCardRequestDto);
         }
     }
 }
