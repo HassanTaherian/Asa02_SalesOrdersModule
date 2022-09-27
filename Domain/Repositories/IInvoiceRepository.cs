@@ -20,19 +20,17 @@ namespace Domain.Repositories
         Task ChangeInvoiceState(int userId, InvoiceState newState);
 
         Task<InvoiceItem> GetInvoiceItem(long invoiceId, int productId);
+        
+        Task<Invoice?> GetSecondCartOfUser(int userId);
 
-        Task<IEnumerable<InvoiceItem>?> GetItemsOfCart(int userId, bool isInSecondCart,bool isDeleted);
+        Task<IEnumerable<InvoiceItem>> GetItemsOfSecondCart(int userId);
+
+        Task<InvoiceItem?> GetSecondCartItem(long invoiceId, int productId);
 
         Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId);
 
         Task<bool> UserHasAnyInvoice(int userId);
 
         IList<int> MostFrequentShoppedProducts();
-
-        Task FromCartToTheSecondCart(long invoiceId, int productId);
-
-        Task FromSecondCartToTheCart(long invoiceId, int productId);
-
-        Task DeleteItemFromTheSecondCart(long invoiceId, int productId);
     }
 }

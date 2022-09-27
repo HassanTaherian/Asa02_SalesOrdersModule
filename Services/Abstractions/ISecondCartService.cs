@@ -13,7 +13,7 @@ namespace Services.Abstractions
         Task CartToSecondCart
             (ProductToSecondCartRequestDto productToSecondCartRequestDto);
 
-        Task DeleteItemFromTheSecondList
+        Task DeleteItemFromTheSecondCart
             (ProductToSecondCartRequestDto productToSecondCartRequestDto);
     }
 }

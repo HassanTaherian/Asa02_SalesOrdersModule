@@ -18,14 +18,14 @@ namespace Services.Services
 
         public async Task<List<WatchInvoiceItemsResponseDto>> ExistedCartItems(WatchRequestItemsDto watchRequestItemsDto)
         {
-            var invoiceItems = await _invoiceRepository.GetItemsOfCart(watchRequestItemsDto.UserId, false, false);
-            if (invoiceItems == null || !invoiceItems.Any())
-            {
-                throw new EmptyCartException(watchRequestItemsDto.UserId);
-            }
-
-            return MapWatchCartItemDto(invoiceItems);
-
+            // var invoiceItems = await _invoiceRepository.GetExistedItemsOfCart(watchRequestItemsDto.UserId, false, false);
+            // if (invoiceItems == null || !invoiceItems.Any())
+            // {
+            //     throw new EmptyCartException(watchRequestItemsDto.UserId);
+            // }
+            //
+            // return MapWatchCartItemDto(invoiceItems);
+            return null;
         }
 
         private List<WatchInvoiceItemsResponseDto> MapWatchCartItemDto(IEnumerable<InvoiceItem> invoiceItems)
@@ -41,7 +41,8 @@ namespace Services.Services
 
         public async Task<List<WatchInvoiceItemsResponseDto>> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto)
         {
-            var invoiceItems = await _invoiceRepository.GetItemsOfCart(watchRequestItemsDto.UserId, false, true);
+            var invoice = await _invoiceRepository.GetCartOfUser(watchRequestItemsDto.UserId);
+            var invoiceItems = invoice.InvoiceItems;
             if (invoiceItems == null || !invoiceItems.Any())
             {
                 throw new EmptyCartException(watchRequestItemsDto.UserId);

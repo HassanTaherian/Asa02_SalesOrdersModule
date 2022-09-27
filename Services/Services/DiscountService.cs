@@ -75,7 +75,7 @@ namespace Services.Services
             ICollection<InvoiceItem> invoiceItems)
         {
             return invoiceItems.Where
-                    (invoiceItem => invoiceItem.IsInSecondCard == false && invoiceItem.IsDeleted == false)
+                    (invoiceItem => invoiceItem.IsDeleted == false)
                 .Select(invoiceItem => new DiscountProductRequestDto()
                 {
                     ProductId = invoiceItem.ProductId,

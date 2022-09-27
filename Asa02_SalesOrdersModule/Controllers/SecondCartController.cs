@@ -41,14 +41,14 @@ namespace Asa02_SalesOrdersModule.Controllers
         {
             await _secondCardService.SecondCartToCart
                 (productToSecondCardRequestDto);
-            return Ok("Successful");
+            return Ok();
         }
 
         [HttpDelete]
-        public async Task DeleteItemFromSecondList(
+        public async Task DeleteItemFromSecondCart(
             [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
-            await _secondCardService.DeleteItemFromTheSecondList(productToSecondCardRequestDto);
+            await _secondCardService.DeleteItemFromTheSecondCart(productToSecondCardRequestDto);
         }
     }
 }
