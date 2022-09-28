@@ -6,7 +6,7 @@ namespace Domain.Repositories
     public interface IInvoiceRepository : IUnitOfWork
     {
         IEnumerable<Invoice?> GetInvoices();
-
+        
         IEnumerable<InvoiceItem> GetInvoiceItems();
 
         IEnumerable<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState);

@@ -1,5 +1,4 @@
-﻿using Contracts.UI;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Exceptions.SecondCart;
 using Domain.Repositories;

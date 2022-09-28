@@ -2,6 +2,7 @@
 using Contracts.Product;
 using Contracts.UI;
 using Contracts.UI.Checkout;
+using Contracts.UI.Watch;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Repositories;
@@ -142,6 +143,83 @@ namespace Services.Services
         private bool CartHasItem(Invoice cart)
         {
             return cart.InvoiceItems.Any(invoiceItem => invoiceItem.IsDeleted == false);
+        }
+        
+               public List<WatchInvoicesResponseDto> OrderInvoices(WatchRequestItemsDto watchRequestItemsDto)
+        {
+            var invoices = _invoiceRepository.GetInvoiceByState(watchRequestItemsDto.UserId, InvoiceState.OrderState);
+            if (invoices == null)
+            {
+                throw new InvoiceNotFoundException(watchRequestItemsDto.UserId);
+            }
+
+            return MapWatchOrderDto(invoices);
+
+        }
+
+        private static List<WatchInvoicesResponseDto> MapWatchOrderDto(IEnumerable<Invoice> invoices)
+        {
+            return invoices.Select(invoice => new WatchInvoicesResponseDto
+            {
+                InvoiceId = invoice.Id,
+                DateTime = (DateTime)invoice.ShoppingDateTime
+            })
+                .ToList();
+        }
+
+        public List<WatchInvoicesResponseDto> ReturnInvoices(WatchRequestItemsDto watchRequestItemsDto)
+        {
+            var invoices = _invoiceRepository.GetInvoiceByState(watchRequestItemsDto.UserId, InvoiceState.ReturnState);
+            if (invoices == null)
+            {
+                throw new InvoiceNotFoundException(watchRequestItemsDto.UserId);
+            }
+
+            return MapWatchReturnDto(invoices);
+
+        }
+
+        private static List<WatchInvoicesResponseDto> MapWatchReturnDto(IEnumerable<Invoice> invoices)
+        {
+            return invoices.Select(invoice => new WatchInvoicesResponseDto
+            {
+                InvoiceId = invoice.Id,
+                DateTime = (((DateTime)invoice.ReturnDateTime)),
+            })
+                .ToList();
+        }
+
+        public async Task<List<WatchInvoiceItemsResponseDto>> ShoppedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto)
+        {
+            var invoiceItems = await _invoiceRepository.GetNotDeleteItems(watchInvoicesRequestDto.InvoiceId);
+            if (invoiceItems == null)
+            {
+                throw new EmptyInvoiceException(watchInvoicesRequestDto.InvoiceId);
+            }
+
+            // return MapWatchCartItemDto(invoiceItems);
+            return null;
+        }
+
+        public async Task<List<WatchInvoiceItemsResponseDto>> ReturnedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto)
+        {
+            var invoice = await _invoiceRepository.GetInvoiceById(watchInvoicesRequestDto.InvoiceId);
+
+            var invoiceItems = 
+                (from invoiceItem in invoice.InvoiceItems 
+                    where invoiceItem.IsReturn == true 
+                    select new WatchInvoiceItemsResponseDto 
+                { ProductId = invoiceItem.ProductId,
+                    Quantity = invoiceItem.Quantity,
+                    UnitPrice = invoiceItem.Price })
+                .ToList();
+
+            if (invoiceItems == null)
+            {
+                throw new EmptyInvoiceException(watchInvoicesRequestDto.InvoiceId);
+            }
+
+            return invoiceItems;
         }
     }
 }

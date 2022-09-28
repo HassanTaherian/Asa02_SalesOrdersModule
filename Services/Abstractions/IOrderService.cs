@@ -1,5 +1,6 @@
 ﻿using Contracts.UI;
 using Contracts.UI.Checkout;
+using Contracts.UI.Watch;
 using Domain.Entities;
 using Domain.ValueObjects;
 
@@ -10,8 +11,12 @@ namespace Services.Abstractions
         Task Checkout(CheckoutRequestDto dto);
         Task Returning(ReturningRequestDto dto);
 
-        Task<bool> UpdateCountingOfProduct(IEnumerable<InvoiceItem> items, ProductCountingState state);
+        List<WatchInvoicesResponseDto> OrderInvoices(WatchRequestItemsDto watchRequestItemsDto);
 
-        Task<bool> SendInvoiceToMarketing(Invoice invoice, InvoiceState state);
+        List<WatchInvoicesResponseDto> ReturnInvoices(WatchRequestItemsDto watchRequestItemsDto);
+
+        Task<List<WatchInvoiceItemsResponseDto>> ShoppedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto);
+
+        Task<List<WatchInvoiceItemsResponseDto>> ReturnedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto);
     }
 }

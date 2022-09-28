@@ -5,7 +5,7 @@ using Persistence.Configurations;
 
 namespace Persistence.Repositories
 {
-    public class RepositoryDbContext : DbContext , IUnitOfWork
+    public class RepositoryDbContext : DbContext
     {
         public RepositoryDbContext(DbContextOptions options) : base(options)
         {
@@ -22,7 +22,7 @@ namespace Persistence.Repositories
 
         public override int SaveChanges() => base.SaveChanges();
 
-        async Task<int> IUnitOfWork.SaveChangesAsync() 
+        async Task<int> SaveChangesAsync() 
             => await base.SaveChangesAsync();
     }
 }

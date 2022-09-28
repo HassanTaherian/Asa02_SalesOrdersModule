@@ -1,4 +1,5 @@
 ﻿using Contracts.UI.Cart;
+using Contracts.UI.Watch;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Repositories;
@@ -112,6 +113,42 @@ namespace Services.Services
             existedItem.IsDeleted = true;
             _invoiceRepository.UpdateInvoice(cart);
             await _invoiceRepository.SaveChangesAsync();
+        }
+        
+        public async Task<List<WatchInvoiceItemsResponseDto>> ExistedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+        {
+            // var invoiceItems = await _invoiceRepository.GetExistedItemsOfCart(watchRequestItemsDto.UserId, false, false);
+            // if (invoiceItems == null || !invoiceItems.Any())
+            // {
+            //     throw new EmptyCartException(watchRequestItemsDto.UserId);
+            // }
+            //
+            // return MapWatchCartItemDto(invoiceItems);
+            return null;
+        }
+
+        private List<WatchInvoiceItemsResponseDto> MapWatchCartItemDto(IEnumerable<InvoiceItem> invoiceItems)
+        {
+            return invoiceItems.Select(invoiceItem => new WatchInvoiceItemsResponseDto
+                {
+                    ProductId = invoiceItem.ProductId,
+                    Quantity = invoiceItem.Quantity,
+                    UnitPrice = invoiceItem.Price
+                })
+                .ToList();
+        }
+
+        public List<WatchInvoiceItemsResponseDto> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+        {
+            var invoice = _invoiceRepository.GetCartOfUser(watchRequestItemsDto.UserId);
+            var invoiceItems = invoice.InvoiceItems;
+            if (invoiceItems == null || !invoiceItems.Any())
+            {
+                throw new EmptyCartException(watchRequestItemsDto.UserId);
+            }
+
+            return MapWatchCartItemDto(invoiceItems);
+
         }
     }
 }

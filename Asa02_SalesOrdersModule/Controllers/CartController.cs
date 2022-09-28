@@ -1,4 +1,5 @@
 ﻿using Contracts.UI.Cart;
+using Contracts.UI.Watch;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +9,7 @@ using Services.Abstractions;
 namespace Asa02_SalesOrdersModule.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class CartController : Controller
     {
         private readonly IProductService _productService;
@@ -17,6 +18,22 @@ namespace Asa02_SalesOrdersModule.Controllers
         {
             _productService = productService;
         }
+        
+        // Todo: Remove WatchRequestItemsDto and Get UserId from Route
+        [HttpGet]
+        public async Task<IActionResult> ExistedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+        {
+            var items = await _productService.ExistedCartItems(watchRequestItemsDto);
+            return Ok(items);
+        }
+
+        [HttpGet]
+        public IActionResult IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+        {
+            var items = _productService.IsDeletedCartItems(watchRequestItemsDto);
+            return Ok(items);
+        }
+
 
         // POST: CartController/Create
         [HttpPost]
