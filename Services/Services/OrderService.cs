@@ -24,7 +24,7 @@ namespace Services.Services
 
         public async Task Checkout(CheckoutRequestDto dto)
         {
-            var cart = await _invoiceRepository.GetCartOfUser(dto.UserId);
+            var cart = _invoiceRepository.GetCartOfUser(dto.UserId);
 
             if (cart.AddressId is null)
             {
@@ -41,10 +41,18 @@ namespace Services.Services
             await UpdateCountingOfProduct(notDeletedItems, ProductCountingState.ShopState);
             await SendInvoiceToMarketing(cart, InvoiceState.OrderState);
 
-            await _invoiceRepository.ChangeInvoiceState(dto.UserId, InvoiceState.OrderState);
+            ChangeCartStateToOrderState(dto.UserId);
             cart.ShoppingDateTime = DateTime.Now;
             _invoiceRepository.UpdateInvoice(cart);
             await _invoiceRepository.SaveChangesAsync();
+        }
+        
+        private void ChangeCartStateToOrderState(int userId)
+        {
+            var cart = _invoiceRepository.GetCartOfUser(userId);
+
+            cart.State = InvoiceState.OrderState;
+            _invoiceRepository.UpdateInvoice(cart);
         }
 
         public async Task Returning(ReturningRequestDto returningRequestDto)
@@ -63,7 +71,7 @@ namespace Services.Services
 
             foreach (var id in returningRequestDto.ProductIds)
             {
-                var invoiceItem = await _invoiceRepository.GetInvoiceItem(returningRequestDto.InvoiceId, id);
+                var invoiceItem = await _invoiceRepository.GetProductOfInvoice(returningRequestDto.InvoiceId, id);
 
                 if (invoiceItem.IsDeleted)
                 {
@@ -110,8 +118,7 @@ namespace Services.Services
             await _httpProvider.Post("https://localhost:7083/mock/DiscountMock/Marketing", json);
             return true;
         }
-
-        // Todo: Make Private
+        
         private ICollection<ProductUpdateCountingItemRequestDto> MapInvoiceConfig(IEnumerable<InvoiceItem> invoiceItems,
             ProductCountingState state)
         {

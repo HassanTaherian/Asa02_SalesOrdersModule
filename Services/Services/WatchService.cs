@@ -39,9 +39,9 @@ namespace Services.Services
                 .ToList();
         }
 
-        public async Task<List<WatchInvoiceItemsResponseDto>> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+        public List<WatchInvoiceItemsResponseDto> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser(watchRequestItemsDto.UserId);
+            var invoice = _invoiceRepository.GetCartOfUser(watchRequestItemsDto.UserId);
             var invoiceItems = invoice.InvoiceItems;
             if (invoiceItems == null || !invoiceItems.Any())
             {
@@ -105,7 +105,6 @@ namespace Services.Services
             }
 
             return MapWatchCartItemDto(invoiceItems);
-
         }
 
         public async Task<List<WatchInvoiceItemsResponseDto>> ReturnedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto)

@@ -6,7 +6,7 @@ namespace Services.Abstractions
     {
         Task<List<WatchInvoiceItemsResponseDto>> ExistedCartItems(WatchRequestItemsDto watchRequestItemsDto);
 
-        Task<List<WatchInvoiceItemsResponseDto>> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto);
+        List<WatchInvoiceItemsResponseDto> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto);
 
         List<WatchInvoicesResponseDto> OrderInvoices(WatchRequestItemsDto watchRequestItemsDto);
 

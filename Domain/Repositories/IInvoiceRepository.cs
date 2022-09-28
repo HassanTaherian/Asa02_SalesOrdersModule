@@ -7,30 +7,22 @@ namespace Domain.Repositories
     {
         IEnumerable<Invoice?> GetInvoices();
 
+        IEnumerable<InvoiceItem> GetInvoiceItems();
+
         IEnumerable<Invoice?> GetInvoiceByState(int userId, InvoiceState invoiceState);
 
         Task<Invoice> GetInvoiceById(long id);
 
-        Task<Invoice> GetCartOfUser(int userId);
-
+        Invoice GetCartOfUser(int userId);
+        
         Task<Invoice> InsertInvoice(Invoice invoice);
 
         Invoice UpdateInvoice(Invoice invoice);
 
-        Task ChangeInvoiceState(int userId, InvoiceState newState);
+        Task<InvoiceItem> GetProductOfInvoice(long invoiceId, int productId);
 
-        Task<InvoiceItem> GetInvoiceItem(long invoiceId, int productId);
-        
-        Task<Invoice?> GetSecondCartOfUser(int userId);
-
-        Task<IEnumerable<InvoiceItem>> GetItemsOfSecondCart(int userId);
-
-        Task<InvoiceItem?> GetSecondCartItem(long invoiceId, int productId);
+        Invoice GetSecondCartOfUser(int userId);
 
         Task<IEnumerable<InvoiceItem>> GetNotDeleteItems(long invoiceId);
-
-        Task<bool> UserHasAnyInvoice(int userId);
-
-        IList<int> MostFrequentShoppedProducts();
     }
 }

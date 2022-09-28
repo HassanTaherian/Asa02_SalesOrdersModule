@@ -17,7 +17,7 @@ namespace Services.Services
         public async Task
             SetAddressIdAsync(AddressInvoiceDataDto addressInvoiceDataDto)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser
+            var invoice = _invoiceRepository.GetCartOfUser
                 (addressInvoiceDataDto.UserId);
 
             if (invoice is null)

@@ -19,11 +19,10 @@ namespace Asa02_SalesOrdersModule.Controllers
         }
 
         [HttpGet("{userId:int}")]
-        public async Task<IEnumerable> GetItemsInTheSecondCart(int userId)
+        public IEnumerable GetItemsInTheSecondCart(int userId)
         {
-            var result = await _secondCardService.GetSecondCartItems(userId);
-            if (result is null)
-                throw new EmptySecondCartException(userId);
+            var result = _secondCardService.GetSecondCartItems(userId);
+
             return result;
         }
 
@@ -39,8 +38,7 @@ namespace Asa02_SalesOrdersModule.Controllers
         public async Task<IActionResult> BackItemToTheCart(
             [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
-            await _secondCardService.SecondCartToCart
-                (productToSecondCardRequestDto);
+            await _secondCardService.SecondCartToCart(productToSecondCardRequestDto);
             return Ok();
         }
 

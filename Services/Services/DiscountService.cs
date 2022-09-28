@@ -23,7 +23,7 @@ namespace Services.Services
 
         private async Task<DiscountResponseDto?> SendDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
         {
-            var discountRequestDto = await MapInvoiceToDiscountRequestDto(discountCodeRequestDto);
+            var discountRequestDto = MapInvoiceToDiscountRequestDto(discountCodeRequestDto);
 
             var jsonBridge = new JsonBridge<DiscountRequestDto, DiscountResponseDto>();
             var json = jsonBridge.Serialize(discountRequestDto);
@@ -50,17 +50,12 @@ namespace Services.Services
         }
 
 
-        private async Task<DiscountRequestDto> MapInvoiceToDiscountRequestDto(
+        private DiscountRequestDto MapInvoiceToDiscountRequestDto(
             DiscountCodeRequestDto discountCodeRequestDto)
         {
-            var invoice = await _invoiceRepository.GetCartOfUser
-                (discountCodeRequestDto.UserId);
-            if (invoice is null)
-            {
-                throw new InvoiceNotFoundException(discountCodeRequestDto.UserId);
-            }
+            var invoice = _invoiceRepository.GetCartOfUser(discountCodeRequestDto.UserId);
 
-            var discountRequestDto = new DiscountRequestDto()
+            var discountRequestDto = new DiscountRequestDto
             {
                 DiscountCode = discountCodeRequestDto.DiscountCode,
                 UserId = discountCodeRequestDto.UserId,
@@ -86,19 +81,14 @@ namespace Services.Services
 
         private double TotalPrice(int userId)
         {
-            var invoice = _invoiceRepository.GetCartOfUser(userId).Result;
-
-            if (invoice is null)
-            {
-                return 0;
-            }
+            var invoice = _invoiceRepository.GetCartOfUser(userId);
 
             return invoice.InvoiceItems.Where(item => item.IsDeleted == false).Sum(item => item.Price * item.Quantity);
         }
 
         public async Task SetDiscountCodeAsync(DiscountCodeRequestDto discountCodeRequestDto)
         {
-            var cart = await _invoiceRepository.GetCartOfUser
+            var cart = _invoiceRepository.GetCartOfUser
                 (discountCodeRequestDto.UserId);
 
             // Todo: Duplicates in all of this class

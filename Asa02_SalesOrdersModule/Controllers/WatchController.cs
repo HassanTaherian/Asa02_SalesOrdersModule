@@ -24,7 +24,7 @@ namespace Asa02_SalesOrdersModule.Controllers
         [HttpGet]
         public async Task<IActionResult> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto)
         {
-            var items = await _watchService.IsDeletedCartItems(watchRequestItemsDto);
+            var items = _watchService.IsDeletedCartItems(watchRequestItemsDto);
             return Ok(items);
         }
 

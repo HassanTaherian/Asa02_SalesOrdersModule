@@ -38,12 +38,13 @@ namespace Services.Services
 
             var productItemsFromDatabase = new List<ProductRecommendDto>();
 
-            if (await _invoiceRepository.UserHasAnyInvoice(recommendationRequestDto.UserId))
+            // Todo: Refactor UserHasAnyInvoice : Hossein
+            if (UserHasAnyInvoice(recommendationRequestDto.UserId))
             {
                 productItemsFromDatabase = await GetInvoiceItemsOfUserFromDatabase(recommendationRequestDto);
             }
 
-            var mostShoppedProducts = _invoiceRepository.MostFrequentShoppedProducts().Select(id => new ProductRecommendDto
+            var mostShoppedProducts = MostFrequentShoppedProducts().Select(id => new ProductRecommendDto
             {
                 ProductId = id
             }).ToList();
@@ -58,6 +59,12 @@ namespace Services.Services
             var productsResponse = await SerializeRecommendationRequestDto(recommendationRequestDto);
 
             return DeserializeRecommendationRequestDto(productsResponse);
+        }
+        
+        private bool UserHasAnyInvoice(int userId)
+        {
+            return _invoiceRepository.GetInvoices().Any(invoice => invoice != null &&
+                invoice.UserId == userId && invoice.State != InvoiceState.CartState);
         }
 
         private async Task<string> SerializeRecommendationRequestDto(RecommendationRequestDto recommendationRequestDto)
@@ -122,6 +129,19 @@ namespace Services.Services
             }
 
             return Task.FromResult(addItems);
+        }
+        
+        private IList<int> MostFrequentShoppedProducts()
+        {
+            var products = (
+                from item in _invoiceRepository.GetInvoiceItems()
+                where !item.IsDeleted && !item.IsReturn
+                group item by item.ProductId into productGroup
+                orderby productGroup.Count() descending
+                select productGroup.Key
+            ).Take(5).ToList();
+
+            return products;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Services.Services
 
             try
             {
-                var invoice = await _invoiceRepository.GetCartOfUser(addProductRequestDto.UserId);
+                var invoice = _invoiceRepository.GetCartOfUser(addProductRequestDto.UserId);
                 await AddItemToInvoice(invoice, item);
             }
             catch (CartNotFoundException)
@@ -68,7 +68,7 @@ namespace Services.Services
 
             try
             {
-                var existedItem = await _invoiceRepository.GetInvoiceItem(invoice.Id, invoiceItem.ProductId);
+                var existedItem = await _invoiceRepository.GetProductOfInvoice(invoice.Id, invoiceItem.ProductId);
                 existedItem.IsDeleted = false;
                 existedItem.Quantity = invoiceItem.Quantity;
                 existedItem.Price = invoiceItem.Price;
@@ -86,7 +86,7 @@ namespace Services.Services
 
         public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto)
         {
-            var cart = await _invoiceRepository.GetCartOfUser(updateQuantityRequestDto.UserId);
+            var cart = _invoiceRepository.GetCartOfUser(updateQuantityRequestDto.UserId);
 
             if (updateQuantityRequestDto.Quantity <= 0)
             {
@@ -94,7 +94,7 @@ namespace Services.Services
             }
 
 
-            var existed = await _invoiceRepository.GetInvoiceItem(cart.Id, updateQuantityRequestDto.ProductId);
+            var existed = await _invoiceRepository.GetProductOfInvoice(cart.Id, updateQuantityRequestDto.ProductId);
 
             existed.Quantity = updateQuantityRequestDto.Quantity;
             existed.IsDeleted = false;
@@ -105,9 +105,9 @@ namespace Services.Services
 
         public async Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto)
         {
-            var cart = await _invoiceRepository.GetCartOfUser(deleteProductRequestDto.UserId);
+            var cart = _invoiceRepository.GetCartOfUser(deleteProductRequestDto.UserId);
 
-            var existedItem = await _invoiceRepository.GetInvoiceItem(cart.UserId, deleteProductRequestDto.ProductId);
+            var existedItem = await _invoiceRepository.GetProductOfInvoice(cart.UserId, deleteProductRequestDto.ProductId);
 
             existedItem.IsDeleted = true;
             _invoiceRepository.UpdateInvoice(cart);
