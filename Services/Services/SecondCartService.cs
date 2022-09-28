@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Contracts.UI;
+﻿using Contracts.UI;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Exceptions.SecondCart;
@@ -11,11 +10,13 @@ namespace Services.Services
 {
     public sealed class SecondCartService : ISecondCartService
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IInvoiceRepository _invoiceRepository;
 
-        public SecondCartService(IInvoiceRepository invoiceRepository)
+        public SecondCartService(IUnitOfWork unitOfWork)
         {
-            _invoiceRepository = invoiceRepository;
+            _unitOfWork = unitOfWork;
+            _invoiceRepository = unitOfWork.InvoiceRepository;
         }
 
         public IEnumerable<InvoiceItem> GetSecondCartItems(int userId)
@@ -45,7 +46,7 @@ namespace Services.Services
             
             secondCart.InvoiceItems.Add(cartItem);
             cart.InvoiceItems.Remove(cartItem);
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task SecondCartToCart(ProductToSecondCartRequestDto productToSecondCardRequestDto)
@@ -65,7 +66,7 @@ namespace Services.Services
 
             cart.InvoiceItems.Add(secondCartItem);
             secondCart.InvoiceItems.Remove(secondCartItem);
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeleteItemFromTheSecondCart
@@ -89,7 +90,7 @@ namespace Services.Services
                 item.ProductId == secondCartItem.ProductId)!.IsDeleted = true;
 
             secondCart.InvoiceItems.Remove(secondCartItem);
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

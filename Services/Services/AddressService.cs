@@ -7,18 +7,19 @@ namespace Services.Services
 {
     public sealed class AddressService : IAddressService
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IInvoiceRepository _invoiceRepository;
 
-        public AddressService(IInvoiceRepository invoiceRepository)
+        public AddressService(IUnitOfWork unitOfWork)
         {
-            _invoiceRepository = invoiceRepository;
+            _unitOfWork = unitOfWork;
+            _invoiceRepository = unitOfWork.InvoiceRepository;
         }
 
         public async Task
             SetAddressIdAsync(AddressInvoiceDataDto addressInvoiceDataDto)
         {
-            var invoice = _invoiceRepository.GetCartOfUser
-                (addressInvoiceDataDto.UserId);
+            var invoice = _invoiceRepository.GetCartOfUser(addressInvoiceDataDto.UserId);
 
             if (invoice is null)
             {
@@ -27,7 +28,7 @@ namespace Services.Services
 
             invoice.AddressId = addressInvoiceDataDto.AddressId;
             _invoiceRepository.UpdateInvoice(invoice);
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

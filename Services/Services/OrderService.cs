@@ -14,12 +14,14 @@ namespace Services.Services
 {
     public class OrderService : IOrderService
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IHttpProvider _httpProvider;
 
-        public OrderService(IInvoiceRepository invoiceRepository, IHttpProvider httpProvider)
+        public OrderService(IUnitOfWork unitOfWork, IHttpProvider httpProvider)
         {
-            _invoiceRepository = invoiceRepository;
+            _unitOfWork = unitOfWork;
+            _invoiceRepository = _unitOfWork.InvoiceRepository;
             _httpProvider = httpProvider;
         }
 
@@ -45,7 +47,7 @@ namespace Services.Services
             ChangeCartStateToOrderState(dto.UserId);
             cart.ShoppingDateTime = DateTime.Now;
             _invoiceRepository.UpdateInvoice(cart);
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
         
         private void ChangeCartStateToOrderState(int userId)
@@ -90,7 +92,7 @@ namespace Services.Services
 
             _invoiceRepository.UpdateInvoice(invoice);
 
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         // Todo: Make Private

@@ -11,12 +11,15 @@ namespace Services.Services
     public sealed class DiscountService : IDiscountService
     {
         private readonly IInvoiceRepository _invoiceRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IHttpProvider _httpProvider;
 
-        public DiscountService(IInvoiceRepository invoiceRepository,
+        public DiscountService(IUnitOfWork unitOfWork,
             IHttpProvider httpProvider)
         {
-            _invoiceRepository = invoiceRepository;
+            _unitOfWork = unitOfWork;
+            _invoiceRepository = _unitOfWork.InvoiceRepository;
+            _unitOfWork = unitOfWork;
             _httpProvider = httpProvider;
         }
 
@@ -110,7 +113,7 @@ namespace Services.Services
             cart.DiscountCode = discountCodeRequestDto.DiscountCode;
             _invoiceRepository.UpdateInvoice(cart);
 
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

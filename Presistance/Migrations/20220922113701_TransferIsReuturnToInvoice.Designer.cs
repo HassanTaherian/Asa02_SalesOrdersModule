@@ -11,7 +11,7 @@ using Persistence.Repositories;
 
 namespace Persistence.Migrations
 {
-    [DbContext(typeof(RepositoryDbContext))]
+    [DbContext(typeof(InvoiceContext))]
     [Migration("20220922113701_TransferIsReuturnToInvoice")]
     partial class TransferIsReuturnToInvoice
     {

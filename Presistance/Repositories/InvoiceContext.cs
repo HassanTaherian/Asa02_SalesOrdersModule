@@ -5,9 +5,9 @@ using Persistence.Configurations;
 
 namespace Persistence.Repositories
 {
-    public class RepositoryDbContext : DbContext
+    public class InvoiceContext : DbContext
     {
-        public RepositoryDbContext(DbContextOptions options) : base(options)
+        public InvoiceContext(DbContextOptions options) : base(options)
         {
         }
 
@@ -19,10 +19,5 @@ namespace Persistence.Repositories
 
         public virtual DbSet<Invoice> Invoices { get; set; }
         public virtual DbSet<InvoiceItem> InvoiceItems { get; set; }
-
-        public override int SaveChanges() => base.SaveChanges();
-
-        async Task<int> SaveChangesAsync() 
-            => await base.SaveChangesAsync();
     }
 }

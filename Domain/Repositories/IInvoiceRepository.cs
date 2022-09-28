@@ -3,7 +3,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Repositories
 {
-    public interface IInvoiceRepository : IUnitOfWork
+    public interface IInvoiceRepository
     {
         IEnumerable<Invoice?> GetInvoices();
         

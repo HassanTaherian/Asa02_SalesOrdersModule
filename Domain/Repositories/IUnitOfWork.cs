@@ -1,11 +1,8 @@
-﻿using Domain.Entities;
-
-namespace Domain.Repositories
+﻿namespace Domain.Repositories
 {
     public interface IUnitOfWork
     {
-        Task<int> SaveChangesAsync();
-
-        int SaveChanges();
+        public IInvoiceRepository InvoiceRepository { get; }
+        Task<bool> SaveChangesAsync();
     }
 }

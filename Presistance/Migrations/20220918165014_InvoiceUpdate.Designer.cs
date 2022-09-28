@@ -11,7 +11,7 @@ using Persistence.Repositories;
 
 namespace Persistence.Migrations
 {
-    [DbContext(typeof(RepositoryDbContext))]
+    [DbContext(typeof(InvoiceContext))]
     [Migration("20220918165014_InvoiceUpdate")]
     partial class InvoiceUpdate
     {

@@ -15,7 +15,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<RepositoryDbContext, RepositoryDbContext>(options =>
+builder.Services.AddDbContext<InvoiceContext, InvoiceContext>(options =>
     {
         options.UseSqlServer(
             builder.Configuration.GetConnectionString("Asa02SalesOrdersModule")
@@ -24,6 +24,7 @@ builder.Services.AddDbContext<RepositoryDbContext, RepositoryDbContext>(options 
 );
 
 // Repositories
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 // Services
 builder.Services.AddScoped<IAddressService, AddressService>();
@@ -36,8 +37,6 @@ builder.Services.AddSingleton<IHttpProvider, HttpProvider>();
 // TODO: Inject HttpClient
 
 var app = builder.Build();
-
-// app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 // Configure the HTTP request pipeline.
 app.ConfigureExceptionHandler(app.Environment);

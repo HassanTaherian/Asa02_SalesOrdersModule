@@ -10,11 +10,13 @@ namespace Services.Services
 {
     public class ProductService : IProductService
     {
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IInvoiceRepository _invoiceRepository;
 
-        public ProductService(IInvoiceRepository invoiceRepository)
+        public ProductService(IUnitOfWork unitOfWork)
         {
-            _invoiceRepository = invoiceRepository;
+            _unitOfWork = unitOfWork;
+            _invoiceRepository = unitOfWork.InvoiceRepository;
         }
 
         public async Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState)
@@ -56,7 +58,7 @@ namespace Services.Services
                 InvoiceItems = new List<InvoiceItem> { invoiceItem }
             };
             await _invoiceRepository.InsertInvoice(newInvoice);
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         private async Task AddItemToInvoice(Invoice invoice, InvoiceItem invoiceItem)
@@ -82,7 +84,7 @@ namespace Services.Services
             _invoiceRepository.UpdateInvoice(invoice);
 
 
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto)
@@ -101,7 +103,7 @@ namespace Services.Services
             existed.IsDeleted = false;
 
             _invoiceRepository.UpdateInvoice(cart);
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto)
@@ -112,7 +114,7 @@ namespace Services.Services
 
             existedItem.IsDeleted = true;
             _invoiceRepository.UpdateInvoice(cart);
-            await _invoiceRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
         
         public async Task<List<WatchInvoiceItemsResponseDto>> ExistedCartItems(WatchRequestItemsDto watchRequestItemsDto)

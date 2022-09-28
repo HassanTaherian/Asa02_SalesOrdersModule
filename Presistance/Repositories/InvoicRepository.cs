@@ -9,9 +9,9 @@ namespace Persistence.Repositories
 {
     public class InvoiceRepository : IInvoiceRepository
     {
-        private readonly RepositoryDbContext _dbContext;
+        private readonly InvoiceContext _dbContext;
 
-        public InvoiceRepository(RepositoryDbContext dbContext, IUnitOfWork unitOfWork)
+        public InvoiceRepository(InvoiceContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -100,19 +100,6 @@ namespace Persistence.Repositories
             var invoiceItems = invoice.InvoiceItems.Where(item => item.IsDeleted == false);
 
             return invoiceItems;
-        }
-
-        public int SaveChanges()
-        {
-            var returnValue = _dbContext.SaveChanges();
-            return returnValue;
-        }
-
-        public async Task<int> SaveChangesAsync()
-
-        {
-            var returnValue = await _dbContext.SaveChangesAsync();
-            return returnValue;
         }
     }
 }

@@ -11,7 +11,7 @@ using Persistence.Repositories;
 
 namespace Persistence.Migrations
 {
-    [DbContext(typeof(RepositoryDbContext))]
+    [DbContext(typeof(InvoiceContext))]
     [Migration("20220926081759_CreateDatabase")]
     partial class CreateDatabase
     {
