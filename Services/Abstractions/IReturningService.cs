@@ -7,6 +7,6 @@ namespace Services.Abstractions;
 public interface IReturningService
 {
     Task Return(ReturningRequestDto dto);
-    List<WatchInvoicesResponseDto> ReturnInvoices(WatchRequestItemsDto watchRequestItemsDto);
-    Task<List<WatchInvoiceItemsResponseDto>> ReturnedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto);
+    List<WatchInvoicesResponseDto> ReturnInvoices(int userId);
+    Task<List<WatchInvoiceItemsResponseDto>> ReturnedInvoiceItems(long invoiceId);
 }

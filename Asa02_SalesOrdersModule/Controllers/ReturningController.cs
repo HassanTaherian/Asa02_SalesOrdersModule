@@ -1,6 +1,4 @@
-﻿using Contracts.UI;
-using Contracts.UI.Checkout;
-using Contracts.UI.Returning;
+﻿using Contracts.UI.Returning;
 using Contracts.UI.Watch;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
@@ -18,16 +16,18 @@ namespace Asa02_SalesOrdersModule.Controllers
         }
 
         [HttpGet]
-        public IActionResult ReturnInvoices(WatchRequestItemsDto watchRequestItemsDto)
+        [Route("{userId:int}")]
+        public IActionResult ReturnInvoices([FromRoute] int userId)
         {
-            var invoices = _returningService.ReturnInvoices(watchRequestItemsDto);
+            var invoices = _returningService.ReturnInvoices(userId);
             return Ok(invoices);
         }
         
         [HttpGet]
-        public IActionResult ReturnedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto)
+        [Route("{invoiceId:long}")]
+        public IActionResult ReturnedInvoiceItems([FromRoute] long invoiceId)
         {
-            var items = _returningService.ReturnedInvoiceItems(watchInvoicesRequestDto);
+            var items = _returningService.ReturnedInvoiceItems(invoiceId);
             return Ok(items);
         }
 

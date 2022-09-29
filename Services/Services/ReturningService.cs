@@ -1,5 +1,4 @@
-﻿using Contracts.UI;
-using Contracts.UI.Returning;
+﻿using Contracts.UI.Returning;
 using Contracts.UI.Watch;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -63,9 +62,9 @@ public class ReturningService : IReturningService
         await _unitOfWork.SaveChangesAsync();
     }
     
-    public async Task<List<WatchInvoiceItemsResponseDto>> ReturnedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto)
+    public async Task<List<WatchInvoiceItemsResponseDto>> ReturnedInvoiceItems(long invoiceId)
     {
-        var invoice = await _invoiceRepository.GetInvoiceById(watchInvoicesRequestDto.InvoiceId);
+        var invoice = await _invoiceRepository.GetInvoiceById(invoiceId);
 
         var invoiceItems = 
             (from invoiceItem in invoice.InvoiceItems 
@@ -78,18 +77,18 @@ public class ReturningService : IReturningService
 
         if (invoiceItems == null)
         {
-            throw new EmptyInvoiceException(watchInvoicesRequestDto.InvoiceId);
+            throw new EmptyInvoiceException(invoiceId);
         }
 
         return invoiceItems;
     }
     
-    public List<WatchInvoicesResponseDto> ReturnInvoices(WatchRequestItemsDto watchRequestItemsDto)
+    public List<WatchInvoicesResponseDto> ReturnInvoices(int userId)
     {
-        var invoices = _invoiceRepository.GetInvoiceByState(watchRequestItemsDto.UserId, InvoiceState.ReturnState);
+        var invoices = _invoiceRepository.GetInvoiceByState(userId, InvoiceState.ReturnState);
         if (invoices == null)
         {
-            throw new InvoiceNotFoundException(watchRequestItemsDto.UserId);
+            throw new InvoiceNotFoundException(userId);
         }
 
         return MapWatchReturnDto(invoices);
@@ -100,7 +99,7 @@ public class ReturningService : IReturningService
         return invoices.Select(invoice => new WatchInvoicesResponseDto
             {
                 InvoiceId = invoice.Id,
-                DateTime = (((DateTime)invoice.ReturnDateTime)),
+                DateTime = invoice.ReturnDateTime,
             })
             .ToList();
     }
