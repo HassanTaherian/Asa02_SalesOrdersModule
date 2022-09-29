@@ -7,9 +7,9 @@ namespace Services.Abstractions
     {
         Task Checkout(CheckoutRequestDto dto);
 
-        List<WatchInvoicesResponseDto> OrderInvoices(WatchRequestItemsDto watchRequestItemsDto);
+        List<WatchInvoicesResponseDto> GetAllOrdersOfUser(int userId);
         
-        Task<List<WatchInvoiceItemsResponseDto>> ShoppedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto);
+        Task<List<WatchInvoiceItemsResponseDto>> GetInvoiceItemsOfInvoice(long invoiceId);
 
     }
 }

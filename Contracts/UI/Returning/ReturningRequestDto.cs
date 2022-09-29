@@ -1,4 +1,4 @@
-﻿namespace Contracts.UI
+﻿namespace Contracts.UI.Returning
 {
     public class ReturningRequestDto
     {

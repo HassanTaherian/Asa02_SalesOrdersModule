@@ -63,12 +63,12 @@ namespace Services.Services
             return cart.InvoiceItems.Any(invoiceItem => invoiceItem.IsDeleted == false);
         }
         
-        public List<WatchInvoicesResponseDto> OrderInvoices(WatchRequestItemsDto watchRequestItemsDto)
+        public List<WatchInvoicesResponseDto> GetAllOrdersOfUser(int userId)
         {
-            var invoices = _invoiceRepository.GetInvoiceByState(watchRequestItemsDto.UserId, InvoiceState.OrderState);
+            var invoices = _invoiceRepository.GetInvoiceByState(userId, InvoiceState.OrderState);
             if (invoices is null)
             {
-                throw new InvoiceNotFoundException(watchRequestItemsDto.UserId);
+                throw new InvoiceNotFoundException(userId);
             }
 
             return MapWatchOrderDto(invoices);
@@ -79,23 +79,21 @@ namespace Services.Services
             return invoices.Select(invoice => new WatchInvoicesResponseDto
             {
                 InvoiceId = invoice.Id,
-                DateTime = (DateTime)invoice.ShoppingDateTime
+                DateTime = invoice.ShoppingDateTime
             })
                 .ToList();
         }
 
-        public async Task<List<WatchInvoiceItemsResponseDto>> ShoppedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto)
+        public async Task<List<WatchInvoiceItemsResponseDto>> GetInvoiceItemsOfInvoice(long invoiceId)
         {
-            var invoiceItems = await _invoiceRepository.GetNotDeleteItems(watchInvoicesRequestDto.InvoiceId);
+            var invoiceItems = await _invoiceRepository.GetNotDeleteItems(invoiceId);
             if (invoiceItems == null)
             {
-                throw new EmptyInvoiceException(watchInvoicesRequestDto.InvoiceId);
+                throw new EmptyInvoiceException(invoiceId);
             }
 
             // return MapWatchCartItemDto(invoiceItems);
             return null;
         }
-
-        
     }
 }

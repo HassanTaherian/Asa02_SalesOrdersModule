@@ -1,5 +1,4 @@
-﻿using Contracts.UI;
-using Contracts.UI.Checkout;
+﻿using Contracts.UI.Checkout;
 using Contracts.UI.Watch;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
@@ -17,16 +16,18 @@ namespace Asa02_SalesOrdersModule.Controllers
         }
         
         [HttpGet]
-        public  IActionResult OrderInvoices(WatchRequestItemsDto watchRequestItemsDto)
+        [Route("{userId:int}")]
+        public  IActionResult GetAllOrdersOfUser(int userId)
         {
-            var invoices = _orderService.OrderInvoices(watchRequestItemsDto);
+            var invoices = _orderService.GetAllOrdersOfUser(userId);
             return Ok(invoices);
         }
         
         [HttpGet]
-        public async Task<IActionResult> ShoppedInvoiceItems(WatchInvoicesRequestDto watchInvoicesRequestDto)
+        [Route("{invoiceId:long}")]
+        public async Task<IActionResult> GetInvoiceItemsOfInvoice(long invoiceId)
         {
-            var items = await _orderService.ShoppedInvoiceItems(watchInvoicesRequestDto);
+            var items = await _orderService.GetInvoiceItemsOfInvoice(invoiceId);
             return Ok(items);
         }
         
