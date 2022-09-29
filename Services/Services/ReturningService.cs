@@ -8,6 +8,7 @@ using Domain.Repositories;
 using Domain.ValueObjects;
 using Services.Abstractions;
 using Services.External;
+using Services.Mappers;
 
 namespace Services.Services;
 
@@ -17,13 +18,15 @@ public class ReturningService : IReturningService
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly IProductAdapter _productAdapter;
     private readonly IMarketingAdapter _marketingAdapter;
+    private readonly OrderMapper _orderMapper;
 
-    public ReturningService(IUnitOfWork unitOfWork, IProductAdapter productAdapter, IMarketingAdapter marketingAdapter)
+    public ReturningService(IUnitOfWork unitOfWork, IProductAdapter productAdapter, IMarketingAdapter marketingAdapter, OrderMapper orderMapper)
     {
         _unitOfWork = unitOfWork;
         _invoiceRepository = _unitOfWork.InvoiceRepository;
         _productAdapter = productAdapter;
         _marketingAdapter = marketingAdapter;
+        _orderMapper = orderMapper;
     }
 
     public async Task Return(ReturningRequestDto returningRequestDto)
@@ -76,7 +79,7 @@ public class ReturningService : IReturningService
                     UnitPrice = invoiceItem.Price })
             .ToList();
 
-        if (invoiceItems == null)
+        if (invoiceItems is null)
         {
             throw new EmptyInvoiceException(invoiceId);
         }
@@ -92,16 +95,6 @@ public class ReturningService : IReturningService
             throw new InvoiceNotFoundException(userId);
         }
 
-        return MapWatchReturnDto(invoices);
-    }
-    
-    private static List<InvoiceResponseDto> MapWatchReturnDto(IEnumerable<Invoice> invoices)
-    {
-        return invoices.Select(invoice => new InvoiceResponseDto
-            {
-                InvoiceId = invoice.Id,
-                DateTime = invoice.ReturnDateTime,
-            })
-            .ToList();
+        return _orderMapper.MapInvoicesToInvoiceResponseDtos(invoices);
     }
 }

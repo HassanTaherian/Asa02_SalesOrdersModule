@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
 using Services.Abstractions;
 using Services.External;
+using Services.Mappers;
 using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,8 @@ builder.Services.AddSingleton<IHttpProvider, HttpProvider>();
 // Adapters
 builder.Services.AddScoped<IProductAdapter, ProductAdapter>();
 builder.Services.AddScoped<IMarketingAdapter, MarketingAdapter>();
+// Mapper
+builder.Services.AddScoped<OrderMapper>();
 // TODO: Inject HttpClient
 
 var app = builder.Build();

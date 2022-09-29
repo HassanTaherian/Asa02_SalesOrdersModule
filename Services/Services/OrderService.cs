@@ -6,6 +6,7 @@ using Domain.Repositories;
 using Domain.ValueObjects;
 using Services.Abstractions;
 using Services.External;
+using Services.Mappers;
 
 namespace Services.Services
 {
@@ -15,13 +16,15 @@ namespace Services.Services
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IProductAdapter _productAdapter;
         private readonly IMarketingAdapter _marketingAdapter;
+        private readonly OrderMapper _orderMapper;
 
-        public OrderService(IUnitOfWork unitOfWork, IMarketingAdapter marketingAdapter, IProductAdapter productAdapter)
+        public OrderService(IUnitOfWork unitOfWork, IMarketingAdapter marketingAdapter, IProductAdapter productAdapter, OrderMapper orderMapper)
         {
             _unitOfWork = unitOfWork;
             _invoiceRepository = _unitOfWork.InvoiceRepository;
             _marketingAdapter = marketingAdapter;
             _productAdapter = productAdapter;
+            _orderMapper = orderMapper;
         }
 
         public async Task Checkout(CheckoutRequestDto dto)
@@ -71,17 +74,7 @@ namespace Services.Services
                 throw new InvoiceNotFoundException(userId);
             }
 
-            return MapWatchOrderDto(invoices);
-        }
-
-        private List<InvoiceResponseDto> MapWatchOrderDto(IEnumerable<Invoice> invoices)
-        {
-            return invoices.Select(invoice => new InvoiceResponseDto
-            {
-                InvoiceId = invoice.Id,
-                DateTime = invoice.ShoppingDateTime
-            })
-                .ToList();
+            return _orderMapper.MapInvoicesToInvoiceResponseDtos(invoices);
         }
 
         public async Task<IEnumerable<InvoiceItemResponseDto>> GetInvoiceItemsOfInvoice(long invoiceId)
@@ -92,18 +85,7 @@ namespace Services.Services
                 throw new EmptyInvoiceException(invoiceId);
             }
 
-            return MapInvoiceItemsToInvoiceItemResponseDtos(invoiceItems);
-        }
-        
-        private IEnumerable<InvoiceItemResponseDto> MapInvoiceItemsToInvoiceItemResponseDtos(IEnumerable<InvoiceItem> invoiceItems)
-        {
-            return invoiceItems.Select(invoiceItem => new InvoiceItemResponseDto
-                {
-                    ProductId = invoiceItem.ProductId,
-                    Quantity = invoiceItem.Quantity,
-                    UnitPrice = invoiceItem.Price,
-                    NewPrice = invoiceItem.NewPrice
-                });
+            return _orderMapper.MapInvoiceItemsToInvoiceItemResponseDtos(invoiceItems);
         }
     }
 }
