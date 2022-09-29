@@ -30,7 +30,21 @@ namespace Services.Services
         public async Task Checkout(CheckoutRequestDto dto)
         {
             var cart = _invoiceRepository.GetCartOfUser(dto.UserId);
+            ValidateCart(cart);
 
+            var notDeletedItems = await _invoiceRepository.GetNotDeleteItems(cart.Id);
+
+            await _productAdapter.UpdateCountingOfProduct(notDeletedItems, ProductCountingState.ShopState);
+            await _marketingAdapter.SendInvoiceToMarketing(cart, InvoiceState.OrderState);
+
+            cart.State = InvoiceState.OrderState;
+            cart.ShoppingDateTime = DateTime.Now;
+            _invoiceRepository.UpdateInvoice(cart);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        private void ValidateCart(Invoice cart)
+        {
             if (cart.AddressId is null)
             {
                 throw new AddressNotSpecifiedException(cart.UserId);
@@ -38,29 +52,10 @@ namespace Services.Services
 
             if (!CartHasItem(cart))
             {
-                throw new EmptyCartException(dto.UserId);
+                throw new EmptyCartException(cart.UserId);
             }
-
-            var notDeletedItems = await _invoiceRepository.GetNotDeleteItems(cart.Id);
-
-            await _productAdapter.UpdateCountingOfProduct(notDeletedItems, ProductCountingState.ShopState);
-            await _marketingAdapter.SendInvoiceToMarketing(cart, InvoiceState.OrderState);
-
-            ChangeCartStateToOrderState(dto.UserId);
-            cart.ShoppingDateTime = DateTime.Now;
-            _invoiceRepository.UpdateInvoice(cart);
-            await _unitOfWork.SaveChangesAsync();
-        }
-        
-        private void ChangeCartStateToOrderState(int userId)
-        {
-            var cart = _invoiceRepository.GetCartOfUser(userId);
-
-            cart.State = InvoiceState.OrderState;
-            _invoiceRepository.UpdateInvoice(cart);
         }
 
-        // Todo: Check this after merging with CartService
         private bool CartHasItem(Invoice cart)
         {
             return cart.InvoiceItems.Any(invoiceItem => invoiceItem.IsDeleted == false);
@@ -69,6 +64,7 @@ namespace Services.Services
         public List<InvoiceResponseDto> GetAllOrdersOfUser(int userId)
         {
             var invoices = _invoiceRepository.GetInvoiceByState(userId, InvoiceState.OrderState);
+            // Todo: Check null in Repository
             if (invoices is null)
             {
                 throw new InvoiceNotFoundException(userId);
@@ -80,6 +76,7 @@ namespace Services.Services
         public async Task<IEnumerable<InvoiceItemResponseDto>> GetInvoiceItemsOfInvoice(long invoiceId)
         {
             var invoiceItems = await _invoiceRepository.GetNotDeleteItems(invoiceId);
+            // Todo: Check null in Repository
             if (invoiceItems == null)
             {
                 throw new EmptyInvoiceException(invoiceId);
