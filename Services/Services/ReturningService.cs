@@ -1,4 +1,5 @@
-﻿using Contracts.UI.Returning;
+﻿using Contracts.UI.Invoice;
+using Contracts.UI.Returning;
 using Contracts.UI.Watch;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -83,7 +84,7 @@ public class ReturningService : IReturningService
         return invoiceItems;
     }
     
-    public List<WatchInvoicesResponseDto> ReturnInvoices(int userId)
+    public List<InvoiceResponseDto> ReturnInvoices(int userId)
     {
         var invoices = _invoiceRepository.GetInvoiceByState(userId, InvoiceState.ReturnState);
         if (invoices == null)
@@ -94,9 +95,9 @@ public class ReturningService : IReturningService
         return MapWatchReturnDto(invoices);
     }
     
-    private static List<WatchInvoicesResponseDto> MapWatchReturnDto(IEnumerable<Invoice> invoices)
+    private static List<InvoiceResponseDto> MapWatchReturnDto(IEnumerable<Invoice> invoices)
     {
-        return invoices.Select(invoice => new WatchInvoicesResponseDto
+        return invoices.Select(invoice => new InvoiceResponseDto
             {
                 InvoiceId = invoice.Id,
                 DateTime = invoice.ReturnDateTime,

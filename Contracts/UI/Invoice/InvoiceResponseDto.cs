@@ -1,6 +1,6 @@
-﻿namespace Contracts.UI.Watch
+﻿namespace Contracts.UI.Invoice
 {
-    public class WatchInvoicesResponseDto
+    public class InvoiceResponseDto
     {
         public long InvoiceId { get; set; }
         public DateTime? DateTime { get; set; }

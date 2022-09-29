@@ -1,5 +1,5 @@
 ﻿using Contracts.UI.Checkout;
-using Contracts.UI.Watch;
+using Contracts.UI.Invoice;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Repositories;
@@ -63,7 +63,7 @@ namespace Services.Services
             return cart.InvoiceItems.Any(invoiceItem => invoiceItem.IsDeleted == false);
         }
         
-        public List<WatchInvoicesResponseDto> GetAllOrdersOfUser(int userId)
+        public List<InvoiceResponseDto> GetAllOrdersOfUser(int userId)
         {
             var invoices = _invoiceRepository.GetInvoiceByState(userId, InvoiceState.OrderState);
             if (invoices is null)
@@ -74,9 +74,9 @@ namespace Services.Services
             return MapWatchOrderDto(invoices);
         }
 
-        private static List<WatchInvoicesResponseDto> MapWatchOrderDto(IEnumerable<Invoice> invoices)
+        private List<InvoiceResponseDto> MapWatchOrderDto(IEnumerable<Invoice> invoices)
         {
-            return invoices.Select(invoice => new WatchInvoicesResponseDto
+            return invoices.Select(invoice => new InvoiceResponseDto
             {
                 InvoiceId = invoice.Id,
                 DateTime = invoice.ShoppingDateTime
@@ -84,7 +84,7 @@ namespace Services.Services
                 .ToList();
         }
 
-        public async Task<List<WatchInvoiceItemsResponseDto>> GetInvoiceItemsOfInvoice(long invoiceId)
+        public async Task<IEnumerable<InvoiceItemResponseDto>> GetInvoiceItemsOfInvoice(long invoiceId)
         {
             var invoiceItems = await _invoiceRepository.GetNotDeleteItems(invoiceId);
             if (invoiceItems == null)
@@ -92,8 +92,18 @@ namespace Services.Services
                 throw new EmptyInvoiceException(invoiceId);
             }
 
-            // return MapWatchCartItemDto(invoiceItems);
-            return null;
+            return MapInvoiceItemsToInvoiceItemResponseDtos(invoiceItems);
+        }
+        
+        private IEnumerable<InvoiceItemResponseDto> MapInvoiceItemsToInvoiceItemResponseDtos(IEnumerable<InvoiceItem> invoiceItems)
+        {
+            return invoiceItems.Select(invoiceItem => new InvoiceItemResponseDto
+                {
+                    ProductId = invoiceItem.ProductId,
+                    Quantity = invoiceItem.Quantity,
+                    UnitPrice = invoiceItem.Price,
+                    NewPrice = invoiceItem.NewPrice
+                });
         }
     }
 }

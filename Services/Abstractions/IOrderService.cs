@@ -1,4 +1,5 @@
 ﻿using Contracts.UI.Checkout;
+using Contracts.UI.Invoice;
 using Contracts.UI.Watch;
 
 namespace Services.Abstractions
@@ -7,9 +8,9 @@ namespace Services.Abstractions
     {
         Task Checkout(CheckoutRequestDto dto);
 
-        List<WatchInvoicesResponseDto> GetAllOrdersOfUser(int userId);
-        
-        Task<List<WatchInvoiceItemsResponseDto>> GetInvoiceItemsOfInvoice(long invoiceId);
+        List<InvoiceResponseDto> GetAllOrdersOfUser(int userId);
+
+        Task<IEnumerable<InvoiceItemResponseDto>> GetInvoiceItemsOfInvoice(long invoiceId);
 
     }
 }
