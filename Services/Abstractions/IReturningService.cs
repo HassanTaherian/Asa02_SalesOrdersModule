@@ -9,5 +9,5 @@ public interface IReturningService
 {
     Task Return(ReturningRequestDto dto);
     List<InvoiceResponseDto> ReturnInvoices(int userId);
-    Task<List<WatchInvoiceItemsResponseDto>> ReturnedInvoiceItems(long invoiceId);
+    Task<IEnumerable<InvoiceItemResponseDto>> ReturnedInvoiceItems(long invoiceId);
 }

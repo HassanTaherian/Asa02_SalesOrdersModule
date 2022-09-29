@@ -14,8 +14,9 @@ public class OrderMapper
             })
             .ToList();
     }
-    
-    public IEnumerable<InvoiceItemResponseDto> MapInvoiceItemsToInvoiceItemResponseDtos(IEnumerable<InvoiceItem> invoiceItems)
+
+    public IEnumerable<InvoiceItemResponseDto> MapInvoiceItemsToInvoiceItemResponseDtos(
+        IEnumerable<InvoiceItem> invoiceItems)
     {
         return invoiceItems.Select(invoiceItem => new InvoiceItemResponseDto
         {
