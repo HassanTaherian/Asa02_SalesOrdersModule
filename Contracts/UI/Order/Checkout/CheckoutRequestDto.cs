@@ -1,4 +1,4 @@
-﻿namespace Contracts.UI.Checkout
+﻿namespace Contracts.UI.Order.Checkout
 {
     public class CheckoutRequestDto
     {
