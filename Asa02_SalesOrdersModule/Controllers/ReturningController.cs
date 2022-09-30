@@ -25,9 +25,9 @@ namespace Asa02_SalesOrdersModule.Controllers
         
         [HttpGet]
         [Route("{invoiceId:long}")]
-        public IActionResult ReturnedInvoiceItems([FromRoute] long invoiceId)
+        public async Task<IActionResult> ReturnedInvoiceItems([FromRoute] long invoiceId)
         {
-            var items = _returningService.ReturnedInvoiceItems(invoiceId);
+            var items = await _returningService.ReturnedInvoiceItems(invoiceId);
             return Ok(items);
         }
 

@@ -12,8 +12,8 @@ using Persistence.Repositories;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(InvoiceContext))]
-    [Migration("20220918165014_InvoiceUpdate")]
-    partial class InvoiceUpdate
+    [Migration("20220930083329_InitialDB")]
+    partial class InitialDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -32,22 +32,24 @@ namespace Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<int>("AddressId")
+                    b.Property<int?>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<string>("DiscountCode")
-                        .IsRequired()
                         .HasMaxLength(6)
                         .HasColumnType("nvarchar(6)");
 
-                    b.Property<DateTime>("ShoppingDateTime")
+                    b.Property<DateTime?>("ReturnDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ShoppingDateTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("State")
                         .HasColumnType("int");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -71,20 +73,19 @@ namespace Persistence.Migrations
                     b.Property<bool>("IsReturn")
                         .HasColumnType("bit");
 
-                    b.Property<double>("NewPrice")
+                    b.Property<double?>("NewPrice")
                         .HasColumnType("float");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Quantity")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("ReturnDateTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Quantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.HasKey("Id");
 

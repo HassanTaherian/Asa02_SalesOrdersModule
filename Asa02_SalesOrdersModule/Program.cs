@@ -1,6 +1,5 @@
 using Asa02_SalesOrdersModule.Extensions;
 using Domain.Repositories;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Repositories;
 using Services.Abstractions;

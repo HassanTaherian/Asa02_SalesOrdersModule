@@ -3,7 +3,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.Repositories;
 
@@ -12,10 +11,9 @@ using Persistence.Repositories;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(InvoiceContext))]
-    [Migration("20220926081759_CreateDatabase")]
-    partial class CreateDatabase
+    partial class InvoiceContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,9 +66,6 @@ namespace Persistence.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsInSecondCard")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsReturn")
