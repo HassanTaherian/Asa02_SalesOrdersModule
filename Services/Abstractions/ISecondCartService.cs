@@ -1,20 +1,16 @@
-﻿using System.Collections;
-using Contracts.UI;
+﻿using Contracts.UI.SecondCart;
 using Domain.Entities;
 
 namespace Services.Abstractions
 {
     public interface ISecondCartService
     {
-        IEnumerable<InvoiceItem> GetSecondCartItems(int userId);
+        Invoice GetSecondCart(int userId);
 
-        Task SecondCartToCart
-            (ProductToSecondCartRequestDto productToSecondCartRequestDto);
+        Task SecondCartToCart(ProductToSecondCartRequestDto productToSecondCartRequestDto);
 
-        Task CartToSecondCart
-            (ProductToSecondCartRequestDto productToSecondCartRequestDto);
+        Task CartToSecondCart(ProductToSecondCartRequestDto productToSecondCartRequestDto);
 
-        Task DeleteItemFromTheSecondCart
-            (ProductToSecondCartRequestDto productToSecondCartRequestDto);
+        Task DeleteItemFromTheSecondCart(ProductToSecondCartRequestDto productToSecondCartRequestDto);
     }
 }

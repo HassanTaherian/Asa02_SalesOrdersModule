@@ -1,7 +1,6 @@
-﻿using Contracts.UI;
+﻿using Contracts.UI.SecondCart;
 using Domain.Entities;
 using Domain.Exceptions;
-using Domain.Exceptions.SecondCart;
 using Domain.Repositories;
 using Domain.ValueObjects;
 using Services.Abstractions;
@@ -19,77 +18,68 @@ namespace Services.Services
             _invoiceRepository = unitOfWork.InvoiceRepository;
         }
 
-        public IEnumerable<InvoiceItem> GetSecondCartItems(int userId)
+        public Invoice GetSecondCart(int userId)
         {
-            return _invoiceRepository.GetSecondCartOfUser(userId).InvoiceItems;
+           var secondCart = _invoiceRepository.GetSecondCartOfUser(userId);
+           if (secondCart is null)
+               throw new EmptySecondCartException(userId);
+           return secondCart;
         }
-
+        private async Task<Invoice> CreateSecondCart(int userId)
+        {
+            var newSecondCart = new Invoice()
+            {
+                UserId = userId,
+                InvoiceItems = new List<InvoiceItem>(),
+                State = InvoiceState.SecondCartState
+            };
+            await _invoiceRepository.InsertInvoice(newSecondCart);
+            await _unitOfWork.SaveChangesAsync();
+            return newSecondCart;   
+        }
         public async Task CartToSecondCart(ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             var cart = _invoiceRepository.GetCartOfUser(productToSecondCardRequestDto.UserId);
-            var cartItem = await _invoiceRepository.GetProductOfInvoice(productToSecondCardRequestDto.InvoiceId, productToSecondCardRequestDto.ProductId);
-
-            Invoice secondCart;
-            try
-            {
-                secondCart = _invoiceRepository.GetSecondCartOfUser(productToSecondCardRequestDto.UserId);
-            }
-            catch(SecondCartNotFoundException)
-            {
-                secondCart = new Invoice
-                {
-                    UserId = productToSecondCardRequestDto.UserId,
-                    InvoiceItems = new List<InvoiceItem>(),
-                    State = InvoiceState.SecondCartState
-                };
-            }
-            
+            var cartItem = await _invoiceRepository.GetProductOfInvoice(cart.Id, productToSecondCardRequestDto.ProductId);
+            if (cartItem == null)
+                throw new InvoiceItemNotFoundException(cart.Id, productToSecondCardRequestDto.ProductId);
+            var secondCart =  _invoiceRepository.GetSecondCartOfUser
+                (productToSecondCardRequestDto.UserId) ?? await CreateSecondCart(productToSecondCardRequestDto.UserId);
             secondCart.InvoiceItems.Add(cartItem);
             cart.InvoiceItems.Remove(cartItem);
-            await _unitOfWork.SaveChangesAsync();
+            await ApplyChanges(cart, secondCart);
         }
-
         public async Task SecondCartToCart(ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
-            var secondCart = _invoiceRepository.GetSecondCartOfUser(productToSecondCardRequestDto.UserId);
-
-            var secondCartItem = await _invoiceRepository.GetProductOfInvoice
-            (productToSecondCardRequestDto.InvoiceId,
-                productToSecondCardRequestDto.ProductId);
-
+            var cart = _invoiceRepository.GetCartOfUser(productToSecondCardRequestDto.UserId);
+            var secondCart =  _invoiceRepository.GetSecondCartOfUser
+                (productToSecondCardRequestDto.UserId) ?? await CreateSecondCart(productToSecondCardRequestDto.UserId);
+            var secondCartItem = secondCart.InvoiceItems
+                .FirstOrDefault(item => item.ProductId == productToSecondCardRequestDto.ProductId);
             if (secondCartItem == null)
-                throw new InvoiceItemNotFoundException
-                    (productToSecondCardRequestDto.InvoiceId, productToSecondCardRequestDto.ProductId);
-
-            var cart = _invoiceRepository.GetCartOfUser
-                (productToSecondCardRequestDto.UserId);
-
+                throw new InvoiceItemNotFoundException(secondCart.Id, productToSecondCardRequestDto.ProductId);
             cart.InvoiceItems.Add(secondCartItem);
             secondCart.InvoiceItems.Remove(secondCartItem);
-            await _unitOfWork.SaveChangesAsync();
+            await ApplyChanges(cart, secondCart);
         }
-
-        public async Task DeleteItemFromTheSecondCart
-            (ProductToSecondCartRequestDto productToSecondCartRequestDto)
+        public async Task DeleteItemFromTheSecondCart(ProductToSecondCartRequestDto productToSecondCartRequestDto)
         {
-            var secondCart = _invoiceRepository.GetSecondCartOfUser
-                (productToSecondCartRequestDto.UserId);
-
-            var secondCartItem = await _invoiceRepository.GetProductOfInvoice
-                (productToSecondCartRequestDto.InvoiceId, productToSecondCartRequestDto.ProductId);
-
-            if (secondCartItem == null)
-                throw new InvoiceItemNotFoundException
-                    (productToSecondCartRequestDto.InvoiceId, productToSecondCartRequestDto.ProductId);
-
             var cart = _invoiceRepository.GetCartOfUser(productToSecondCartRequestDto.UserId);
-
+            var secondCart =  _invoiceRepository.GetSecondCartOfUser
+                (productToSecondCartRequestDto.UserId) ?? await CreateSecondCart(productToSecondCartRequestDto.UserId);
+            var secondCartItem = secondCart.InvoiceItems
+                .FirstOrDefault(item => item.ProductId == productToSecondCartRequestDto.ProductId);
+            if (secondCartItem == null)
+                throw new InvoiceItemNotFoundException(secondCart.Id, productToSecondCartRequestDto.ProductId);
             cart.InvoiceItems.Add(secondCartItem);
-
-            cart.InvoiceItems.SingleOrDefault(item =>
-                item.ProductId == secondCartItem.ProductId)!.IsDeleted = true;
-
+            cart.InvoiceItems.SingleOrDefault(item => item.ProductId == secondCartItem.ProductId)!.IsDeleted = true;
             secondCart.InvoiceItems.Remove(secondCartItem);
+            await ApplyChanges(cart, secondCart);
+        }
+        private async Task ApplyChanges(Invoice cart, Invoice secondCart)
+        {
+            _invoiceRepository.UpdateInvoice(cart);
+            _invoiceRepository.UpdateInvoice(secondCart);
             await _unitOfWork.SaveChangesAsync();
         }
     }

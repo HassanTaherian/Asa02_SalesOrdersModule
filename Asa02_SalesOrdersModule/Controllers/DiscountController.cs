@@ -1,4 +1,5 @@
 ﻿using Contracts.UI;
+using Contracts.UI.Discount;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 

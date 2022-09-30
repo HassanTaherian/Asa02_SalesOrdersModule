@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using Contracts.UI;
+﻿using Contracts.UI.SecondCart;
 using Domain.Entities;
-using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Services.Abstractions;
 
@@ -19,34 +17,30 @@ namespace Asa02_SalesOrdersModule.Controllers
         }
 
         [HttpGet("{userId:int}")]
-        public IEnumerable GetItemsInTheSecondCart(int userId)
+        public IEnumerable<InvoiceItem> GetItems(int userId)
         {
-            var result = _secondCardService.GetSecondCartItems(userId);
-
-            return result;
+            return _secondCardService.GetSecondCart(userId).InvoiceItems;
         }
 
         [HttpPatch]
-        public async Task<IActionResult> PutItemInTheSecondCart(
-            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
+        public async Task<IActionResult> CartToSecond([FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             await _secondCardService.CartToSecondCart(productToSecondCardRequestDto);
             return Ok("Successful");
         }
 
         [HttpPatch]
-        public async Task<IActionResult> BackItemToTheCart(
-            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
+        public async Task<IActionResult> SecondToCart([FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             await _secondCardService.SecondCartToCart(productToSecondCardRequestDto);
             return Ok();
         }
 
         [HttpDelete]
-        public async Task DeleteItemFromSecondCart(
-            [FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
+        public async Task<IActionResult> DeleteItem([FromBody] ProductToSecondCartRequestDto productToSecondCardRequestDto)
         {
             await _secondCardService.DeleteItemFromTheSecondCart(productToSecondCardRequestDto);
+            return Ok();
         }
     }
 }

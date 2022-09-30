@@ -1,4 +1,5 @@
 ﻿using Contracts.UI;
+using Contracts.UI.Discount;
 
 namespace Services.Abstractions
 {

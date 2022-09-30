@@ -1,10 +1,7 @@
-﻿using Contracts.UI.Cart;
-
-namespace Contracts.UI
+﻿namespace Contracts.UI.SecondCart
 {
     public class ProductToSecondCartRequestDto
     {
-        public long InvoiceId { get; set; }
         public int UserId { get; set; }
         public int ProductId { get; set; }
     }
