@@ -1,5 +1,4 @@
 ﻿using Contracts.UI.Cart;
-using Contracts.UI.Watch;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Repositories;
@@ -68,7 +67,6 @@ namespace Services.Services
                 throw new QuantityOutOfRangeInputException();
             }
 
-
             try
             {
                 var existedItem = await _invoiceRepository.GetProductOfInvoice(invoice.Id, invoiceItem.ProductId);
@@ -83,7 +81,6 @@ namespace Services.Services
 
             _invoiceRepository.UpdateInvoice(invoice);
 
-
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -95,7 +92,6 @@ namespace Services.Services
             {
                 throw new QuantityOutOfRangeInputException();
             }
-
 
             var existed = await _invoiceRepository.GetProductOfInvoice(cart.Id, updateQuantityRequestDto.ProductId);
 
@@ -116,41 +112,61 @@ namespace Services.Services
             _invoiceRepository.UpdateInvoice(cart);
             await _unitOfWork.SaveChangesAsync();
         }
-        
-        public async Task<List<WatchInvoiceItemsResponseDto>> ExistedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+
+        public List<WatchInvoiceItemsResponseDto> ExistedCartItems(int userId)
         {
-            // var invoiceItems = await _invoiceRepository.GetExistedItemsOfCart(watchRequestItemsDto.UserId, false, false);
-            // if (invoiceItems == null || !invoiceItems.Any())
-            // {
-            //     throw new EmptyCartException(watchRequestItemsDto.UserId);
-            // }
-            //
-            // return MapWatchCartItemDto(invoiceItems);
-            return null;
+            var invoice = _invoiceRepository.GetCartOfUser(userId);
+            var invoiceItems = GetNotDeletedItemsFromCart(invoice);
+            if (!invoiceItems.Any())
+            {
+                throw new EmptyCartException(userId);
+            }
+            
+            return invoiceItems;
         }
 
-        private List<WatchInvoiceItemsResponseDto> MapWatchCartItemDto(IEnumerable<InvoiceItem> invoiceItems)
+        private static List<WatchInvoiceItemsResponseDto> GetNotDeletedItemsFromCart(Invoice invoice)
         {
-            return invoiceItems.Select(invoiceItem => new WatchInvoiceItemsResponseDto
+            return
+                (
+                from invoiceItem in invoice.InvoiceItems
+                where !invoiceItem.IsDeleted
+                select new WatchInvoiceItemsResponseDto
                 {
                     ProductId = invoiceItem.ProductId,
                     Quantity = invoiceItem.Quantity,
                     UnitPrice = invoiceItem.Price
-                })
-                .ToList();
+                }
+                ).ToList();
         }
 
-        public List<WatchInvoiceItemsResponseDto> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+        public List<WatchInvoiceItemsResponseDto> IsDeletedCartItems(int userId)
         {
-            var invoice = _invoiceRepository.GetCartOfUser(watchRequestItemsDto.UserId);
-            var invoiceItems = invoice.InvoiceItems;
-            if (invoiceItems == null || !invoiceItems.Any())
+            var invoice = _invoiceRepository.GetCartOfUser(userId);
+            var invoiceItems = GetDeletedItemsFromCart(invoice);
+
+            if (!invoiceItems.Any())
             {
-                throw new EmptyCartException(watchRequestItemsDto.UserId);
+                throw new EmptyCartException(userId);
             }
 
-            return MapWatchCartItemDto(invoiceItems);
+            return invoiceItems;
 
+        }
+
+        private static List<WatchInvoiceItemsResponseDto> GetDeletedItemsFromCart(Invoice invoice)
+        {
+            return
+            (
+                from invoiceItem in invoice.InvoiceItems
+                where invoiceItem.IsDeleted
+                select new WatchInvoiceItemsResponseDto
+                {
+                    ProductId = invoiceItem.ProductId,
+                    Quantity = invoiceItem.Quantity,
+                    UnitPrice = invoiceItem.Price
+                }
+            ).ToList();
         }
     }
 }

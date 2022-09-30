@@ -1,5 +1,4 @@
 ﻿using Contracts.UI.Cart;
-using Contracts.UI.Watch;
 using Domain.ValueObjects;
 
 namespace Services.Abstractions
@@ -7,11 +6,13 @@ namespace Services.Abstractions
     public interface IProductService
     {
         Task AddCart(AddProductRequestDto addProductRequestDto, InvoiceState invoiceState);
-        Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto);
-        Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto);
-        
-        Task<List<WatchInvoiceItemsResponseDto>> ExistedCartItems(WatchRequestItemsDto watchRequestItemsDto);
 
-        List<WatchInvoiceItemsResponseDto> IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto);
+        Task UpdateQuantity(UpdateQuantityRequestDto updateQuantityRequestDto);
+
+        Task DeleteItem(DeleteProductRequestDto deleteProductRequestDto);
+
+        List<WatchInvoiceItemsResponseDto> ExistedCartItems(int userId);
+
+        List<WatchInvoiceItemsResponseDto> IsDeletedCartItems(int userId);
     }
 }

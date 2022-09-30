@@ -18,19 +18,18 @@ namespace Asa02_SalesOrdersModule.Controllers
         {
             _productService = productService;
         }
-        
-        // Todo: Remove WatchRequestItemsDto and Get UserId from Route
-        [HttpGet]
-        public async Task<IActionResult> ExistedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+
+        [HttpGet("{id:int}")]
+        public IActionResult ExistedCartItems(int id)
         {
-            var items = await _productService.ExistedCartItems(watchRequestItemsDto);
+            var items =  _productService.ExistedCartItems(id);
             return Ok(items);
         }
 
-        [HttpGet]
-        public IActionResult IsDeletedCartItems(WatchRequestItemsDto watchRequestItemsDto)
+        [HttpGet("{id:int}")]
+        public IActionResult IsDeletedCartItems(int id)
         {
-            var items = _productService.IsDeletedCartItems(watchRequestItemsDto);
+            var items = _productService.IsDeletedCartItems(id);
             return Ok(items);
         }
 
